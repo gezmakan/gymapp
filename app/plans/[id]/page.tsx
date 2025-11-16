@@ -90,9 +90,9 @@ function SortableExerciseRow({
   }
 
   return (
-    <TableRow ref={setNodeRef} style={style}>
+    <TableRow ref={setNodeRef} style={style} className="select-none">
       <TableCell className="w-[50px]">
-        <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
+        <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing touch-none">
           <GripVertical className="h-5 w-5 text-gray-400" />
         </div>
       </TableCell>
@@ -147,7 +147,11 @@ export default function PlanDetailPage() {
   const supabase = createClient()
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // Require 8px movement before dragging starts
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
