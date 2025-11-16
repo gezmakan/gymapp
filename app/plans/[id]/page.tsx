@@ -358,9 +358,9 @@ export default function PlanDetailPage() {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-orange-100 hover:bg-orange-100">
-                    <TableHead className="w-[60%]">Exercise Name</TableHead>
-                    <TableHead className="w-[25%]">Muscle Groups</TableHead>
-                    <TableHead className="text-right w-[15%]">Action</TableHead>
+                    <TableHead className="w-[60%] font-semibold">Exercise Name</TableHead>
+                    <TableHead className="w-[25%] font-semibold">Muscle Groups</TableHead>
+                    <TableHead className="text-right w-[15%] font-semibold">Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
