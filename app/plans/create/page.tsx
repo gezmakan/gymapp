@@ -50,8 +50,8 @@ export default function CreatePlanPage() {
 
       if (error) throw error
 
-      // Redirect to the plan edit page to add exercises
-      router.push(`/plans/${data.id}`)
+      // Redirect back to plans page
+      router.push('/plans')
     } catch (error: any) {
       setError(error.message)
     } finally {
