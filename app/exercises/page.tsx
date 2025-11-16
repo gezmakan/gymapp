@@ -100,7 +100,7 @@ export default function ExercisesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto px-8 md:px-16">
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold">Exercise Library</h1>
@@ -139,22 +139,29 @@ export default function ExercisesPage() {
               <TableBody>
                 {displayedExercises.map((exercise) => (
                   <TableRow key={exercise.id}>
-                    <TableCell className="font-medium">
+                    <TableCell className="font-medium max-w-[200px]">
                       {exercise.video_url ? (
                         <button
                           onClick={() => setSelectedVideo({ url: exercise.video_url!, title: exercise.name })}
-                          className="text-blue-600 hover:text-blue-800 hover:underline text-left"
+                          className="text-blue-600 hover:text-blue-800 hover:underline text-left truncate block w-full"
+                          title={exercise.name}
                         >
                           {exercise.name}
                         </button>
                       ) : (
-                        exercise.name
+                        <span className="truncate block" title={exercise.name}>
+                          {exercise.name}
+                        </span>
                       )}
                     </TableCell>
                     <TableCell>{exercise.sets}</TableCell>
-                    <TableCell>{exercise.reps}</TableCell>
-                    <TableCell>{exercise.muscle_groups || '-'}</TableCell>
-                    <TableCell>
+                    <TableCell className="whitespace-nowrap">{exercise.reps}</TableCell>
+                    <TableCell className="max-w-[200px]">
+                      <span className="truncate block" title={exercise.muscle_groups || '-'}>
+                        {exercise.muscle_groups || '-'}
+                      </span>
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">
                       {exercise.rest_minutes}m {exercise.rest_seconds}s
                     </TableCell>
                     <TableCell className="text-right">
