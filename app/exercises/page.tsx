@@ -128,12 +128,12 @@ export default function ExercisesPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Exercise Name</TableHead>
-                  <TableHead>Sets</TableHead>
-                  <TableHead>Reps</TableHead>
-                  <TableHead>Muscle Groups</TableHead>
-                  <TableHead>Rest Time</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="w-[300px]">Exercise Name</TableHead>
+                  <TableHead className="w-[50px]">Sets</TableHead>
+                  <TableHead className="w-[60px]">Reps</TableHead>
+                  <TableHead className="w-[120px]">Muscle Groups</TableHead>
+                  <TableHead className="w-[70px]">Rest</TableHead>
+                  <TableHead className="text-right w-[100px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -156,7 +156,7 @@ export default function ExercisesPage() {
                     </TableCell>
                     <TableCell>{exercise.sets}</TableCell>
                     <TableCell className="whitespace-nowrap">{exercise.reps}</TableCell>
-                    <TableCell className="max-w-[200px]">
+                    <TableCell>
                       <span className="truncate block" title={exercise.muscle_groups || '-'}>
                         {exercise.muscle_groups || '-'}
                       </span>
