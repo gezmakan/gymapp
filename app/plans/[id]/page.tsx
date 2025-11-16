@@ -358,10 +358,10 @@ export default function PlanDetailPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[35%]">Exercise Name</TableHead>
+                    <TableHead className="w-[40%]">Exercise Name</TableHead>
                     <TableHead className="w-[10%]">Sets</TableHead>
                     <TableHead className="w-[10%]">Reps</TableHead>
-                    <TableHead className="w-[30%]">Muscle Groups</TableHead>
+                    <TableHead className="w-[25%]">Muscle Groups</TableHead>
                     <TableHead className="text-right w-[15%]">Action</TableHead>
                   </TableRow>
                 </TableHeader>
