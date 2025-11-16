@@ -357,7 +357,7 @@ export default function PlanDetailPage() {
             <div className="border rounded-lg max-h-96 overflow-y-auto">
               <Table>
                 <TableHeader>
-                  <TableRow>
+                  <TableRow className="bg-orange-100 hover:bg-orange-100">
                     <TableHead className="w-[60%]">Exercise Name</TableHead>
                     <TableHead className="w-[25%]">Muscle Groups</TableHead>
                     <TableHead className="text-right w-[15%]">Action</TableHead>
