@@ -82,16 +82,33 @@ export default function AdminPage() {
         }
       })
 
-      // Get user details from auth.users (note: this requires admin privileges in Supabase)
-      // For now, we'll just show user_ids and exercise counts
-      const uniqueUserIds = Object.keys(userExerciseCounts)
+      // Get user emails using the function
+      const { data: userEmails, error: emailError } = await supabase
+        .rpc('get_user_emails')
 
-      const usersList: User[] = uniqueUserIds.map(userId => ({
-        id: userId,
-        email: userId.substring(0, 8) + '...', // Truncated for privacy
-        created_at: new Date().toISOString(),
-        exercise_count: userExerciseCounts[userId]
-      }))
+      if (emailError) {
+        console.error('Error fetching user emails:', emailError)
+        // Fallback to showing user IDs
+        const uniqueUserIds = Object.keys(userExerciseCounts)
+        const usersList: User[] = uniqueUserIds.map(userId => ({
+          id: userId,
+          email: userId.substring(0, 8) + '...',
+          created_at: new Date().toISOString(),
+          exercise_count: userExerciseCounts[userId]
+        }))
+        setUsers(usersList)
+        return
+      }
+
+      // Map user emails to exercise counts
+      const usersList: User[] = (userEmails || [])
+        .filter(u => userExerciseCounts[u.user_id])
+        .map(u => ({
+          id: u.user_id,
+          email: u.email,
+          created_at: u.created_at,
+          exercise_count: userExerciseCounts[u.user_id] || 0
+        }))
 
       setUsers(usersList)
     } catch (error) {
@@ -108,10 +125,19 @@ export default function AdminPage() {
 
       if (error) throw error
 
-      // Add user email info (truncated)
+      // Get user emails
+      const { data: userEmails } = await supabase.rpc('get_user_emails')
+
+      // Create a map of user_id to email
+      const userEmailMap: Record<string, string> = {}
+      userEmails?.forEach((u: any) => {
+        userEmailMap[u.user_id] = u.email
+      })
+
+      // Add user email info
       const exercisesWithUsers = data?.map(ex => ({
         ...ex,
-        user_email: ex.user_id ? ex.user_id.substring(0, 8) + '...' : 'Public'
+        user_email: ex.user_id ? (userEmailMap[ex.user_id] || ex.user_id.substring(0, 8) + '...') : 'Public'
       }))
 
       setExercises(exercisesWithUsers || [])
@@ -177,14 +203,24 @@ export default function AdminPage() {
                     <TableHead>Muscle Groups</TableHead>
                     <TableHead>Type</TableHead>
                     <TableHead>Created By</TableHead>
-                    <TableHead>Video</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {exercises.map((exercise) => (
                     <TableRow key={exercise.id}>
-                      <TableCell className="font-medium">{exercise.name}</TableCell>
+                      <TableCell className="font-medium">
+                        {exercise.video_url ? (
+                          <button
+                            onClick={() => setSelectedVideo({ url: exercise.video_url!, title: exercise.name })}
+                            className="text-blue-600 hover:text-blue-800 hover:underline text-left"
+                          >
+                            {exercise.name}
+                          </button>
+                        ) : (
+                          exercise.name
+                        )}
+                      </TableCell>
                       <TableCell>{exercise.sets}</TableCell>
                       <TableCell>{exercise.reps}</TableCell>
                       <TableCell>{exercise.muscle_groups || '-'}</TableCell>
@@ -195,18 +231,6 @@ export default function AdminPage() {
                       </TableCell>
                       <TableCell className="text-xs text-gray-500">
                         {exercise.user_email}
-                      </TableCell>
-                      <TableCell>
-                        {exercise.video_url ? (
-                          <button
-                            onClick={() => setSelectedVideo({ url: exercise.video_url!, title: exercise.name })}
-                            className="text-blue-600 hover:text-blue-800"
-                          >
-                            <Video className="h-4 w-4" />
-                          </button>
-                        ) : (
-                          '-'
-                        )}
                       </TableCell>
                       <TableCell className="text-right">
                         <Button

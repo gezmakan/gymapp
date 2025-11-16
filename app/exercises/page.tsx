@@ -34,8 +34,12 @@ export default function ExercisesPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
   const [selectedVideo, setSelectedVideo] = useState<{ url: string; title: string } | null>(null)
+  const [showAll, setShowAll] = useState(false)
   const router = useRouter()
   const supabase = createClient()
+
+  const EXERCISES_PER_PAGE = 30
+  const displayedExercises = showAll ? exercises : exercises.slice(0, EXERCISES_PER_PAGE)
 
   useEffect(() => {
     checkUser()
@@ -129,31 +133,29 @@ export default function ExercisesPage() {
                   <TableHead>Reps</TableHead>
                   <TableHead>Muscle Groups</TableHead>
                   <TableHead>Rest Time</TableHead>
-                  <TableHead>Video</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {exercises.map((exercise) => (
+                {displayedExercises.map((exercise) => (
                   <TableRow key={exercise.id}>
-                    <TableCell className="font-medium">{exercise.name}</TableCell>
+                    <TableCell className="font-medium">
+                      {exercise.video_url ? (
+                        <button
+                          onClick={() => setSelectedVideo({ url: exercise.video_url!, title: exercise.name })}
+                          className="text-blue-600 hover:text-blue-800 hover:underline text-left"
+                        >
+                          {exercise.name}
+                        </button>
+                      ) : (
+                        exercise.name
+                      )}
+                    </TableCell>
                     <TableCell>{exercise.sets}</TableCell>
                     <TableCell>{exercise.reps}</TableCell>
                     <TableCell>{exercise.muscle_groups || '-'}</TableCell>
                     <TableCell>
                       {exercise.rest_minutes}m {exercise.rest_seconds}s
-                    </TableCell>
-                    <TableCell>
-                      {exercise.video_url ? (
-                        <button
-                          onClick={() => setSelectedVideo({ url: exercise.video_url!, title: exercise.name })}
-                          className="text-blue-600 hover:text-blue-800 flex items-center"
-                        >
-                          <Video className="h-4 w-4" />
-                        </button>
-                      ) : (
-                        '-'
-                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
@@ -177,6 +179,16 @@ export default function ExercisesPage() {
                 ))}
               </TableBody>
             </Table>
+            {exercises.length > EXERCISES_PER_PAGE && (
+              <div className="p-4 border-t text-center">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowAll(!showAll)}
+                >
+                  {showAll ? 'Show Less' : `Show All (${exercises.length} exercises)`}
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </div>
