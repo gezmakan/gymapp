@@ -29,6 +29,8 @@ import {
 import VideoModal from '@/components/VideoModal'
 import { toast } from 'sonner'
 import { Toaster } from '@/components/ui/sonner'
+import Navbar from '@/components/Navbar'
+import Footer from '@/components/Footer'
 import {
   DndContext,
   closestCenter,
@@ -394,37 +396,31 @@ export default function PlansPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 md:p-8">
-      <div className="max-w-4xl mx-auto md:px-16">
-        <div className="mb-4 md:mb-8 p-4 md:p-0">
-          <div className="flex justify-between items-center mb-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold">Workout Plans</h1>
-              <p className="text-gray-600 text-sm md:text-base">
-                {plans.length} of {MAX_PLANS} plans created
-              </p>
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <Navbar />
+
+      <div className="flex-1 md:p-8">
+        <div className="max-w-4xl mx-auto md:px-16">
+          <div className="mb-4 md:mb-8 p-4 md:p-0">
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold">Workout Plans</h1>
+                <p className="text-gray-600 text-sm md:text-base">
+                  {plans.length} of {MAX_PLANS} plans created
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => router.push('/plans/create')}
+                  disabled={!canAddMore}
+                  size="sm"
+                  className="md:h-10"
+                >
+                  <Plus className="h-4 w-4 md:mr-2" />
+                  <span className="hidden md:inline">New Plan</span>
+                </Button>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <Button
-                onClick={() => router.push('/plans/create')}
-                disabled={!canAddMore}
-                size="sm"
-                className="md:h-10"
-              >
-                <Plus className="h-4 w-4 md:mr-2" />
-                <span className="hidden md:inline">New Plan</span>
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => router.push('/exercises')}
-                size="sm"
-                className="md:h-10"
-              >
-                <ArrowLeft className="h-4 w-4 md:mr-2" />
-                <span className="hidden md:inline">Back</span>
-              </Button>
-            </div>
-          </div>
 
           {!canAddMore && (
             <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded text-sm">
@@ -555,7 +551,10 @@ export default function PlansPage() {
             ))}
           </div>
         )}
+        </div>
       </div>
+
+      <Footer />
 
       {/* Add Exercise Dialog */}
       <Dialog open={!!selectedPlanForAdd} onOpenChange={(open) => !open && setSelectedPlanForAdd(null)}>
