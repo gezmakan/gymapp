@@ -13,6 +13,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Plus, Edit, Trash2, LogOut, Video } from 'lucide-react'
+import VideoModal from '@/components/VideoModal'
 
 type Exercise = {
   id: string
@@ -23,12 +24,15 @@ type Exercise = {
   muscle_groups: string | null
   rest_minutes: number
   rest_seconds: number
+  is_private: boolean
+  user_id: string | null
 }
 
 export default function ExercisesPage() {
   const [exercises, setExercises] = useState<Exercise[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
+  const [selectedVideo, setSelectedVideo] = useState<{ url: string; title: string } | null>(null)
   const router = useRouter()
   const supabase = createClient()
 
@@ -94,8 +98,8 @@ export default function ExercisesPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold">Exercise Database</h1>
-            <p className="text-gray-600 mt-1">Manage your exercise library</p>
+            <h1 className="text-3xl font-bold">Exercise Library</h1>
+            <p className="text-gray-600 mt-1">Manage your exercises</p>
           </div>
           <div className="flex gap-2">
             <Button onClick={() => router.push('/exercises/add')}>
@@ -140,14 +144,12 @@ export default function ExercisesPage() {
                     </TableCell>
                     <TableCell>
                       {exercise.video_url ? (
-                        <a
-                          href={exercise.video_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline flex items-center"
+                        <button
+                          onClick={() => setSelectedVideo({ url: exercise.video_url!, title: exercise.name })}
+                          className="text-blue-600 hover:text-blue-800 flex items-center"
                         >
                           <Video className="h-4 w-4" />
-                        </a>
+                        </button>
                       ) : (
                         '-'
                       )}
@@ -177,6 +179,15 @@ export default function ExercisesPage() {
           </div>
         )}
       </div>
+
+      {selectedVideo && (
+        <VideoModal
+          isOpen={!!selectedVideo}
+          onClose={() => setSelectedVideo(null)}
+          videoUrl={selectedVideo.url}
+          title={selectedVideo.title}
+        />
+      )}
     </div>
   )
 }

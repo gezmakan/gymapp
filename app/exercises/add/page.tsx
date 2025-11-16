@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
 import { ArrowLeft } from 'lucide-react'
 
 export default function AddExercisePage() {
@@ -19,6 +20,7 @@ export default function AddExercisePage() {
     muscle_groups: '',
     rest_minutes: '1',
     rest_seconds: '30',
+    is_private: false,
   })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -44,6 +46,7 @@ export default function AddExercisePage() {
           muscle_groups: formData.muscle_groups || null,
           rest_minutes: parseInt(formData.rest_minutes),
           rest_seconds: parseInt(formData.rest_seconds),
+          is_private: formData.is_private,
         },
       ])
 
@@ -157,6 +160,17 @@ export default function AddExercisePage() {
                     onChange={(e) => setFormData({ ...formData, rest_seconds: e.target.value })}
                   />
                 </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="is_private"
+                  checked={formData.is_private}
+                  onCheckedChange={(checked) => setFormData({ ...formData, is_private: checked as boolean })}
+                />
+                <Label htmlFor="is_private" className="text-sm font-normal cursor-pointer">
+                  Make this exercise private (only visible to me)
+                </Label>
               </div>
 
               {error && (
