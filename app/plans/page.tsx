@@ -507,7 +507,7 @@ export default function PlansPage() {
                       </Button>
                     </div>
                   ) : (
-                    <div>
+                    <div className="-mt-2">
                       <DndContext
                         sensors={sensors}
                         collisionDetection={closestCenter}
