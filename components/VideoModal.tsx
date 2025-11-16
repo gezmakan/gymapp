@@ -26,7 +26,7 @@ export default function VideoModal({ isOpen, onClose, videoUrl, title }: VideoMo
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:!max-w-[1600px] w-[95vw]">
+      <DialogContent className="sm:!max-w-[1200px] w-[90vw]">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
