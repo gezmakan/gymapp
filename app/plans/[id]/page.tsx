@@ -24,6 +24,23 @@ import {
 import VideoModal from '@/components/VideoModal'
 import { toast } from 'sonner'
 import { Toaster } from '@/components/ui/sonner'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 type Exercise = {
   id: string
@@ -47,6 +64,76 @@ type WorkoutPlan = {
   user_id: string
 }
 
+// Sortable Row Component
+function SortableExerciseRow({
+  exercise,
+  onRemove,
+  onVideoClick
+}: {
+  exercise: PlanExercise
+  onRemove: () => void
+  onVideoClick: () => void
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: exercise.plan_exercise_id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+
+  return (
+    <TableRow ref={setNodeRef} style={style}>
+      <TableCell className="w-[50px]">
+        <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
+          <GripVertical className="h-5 w-5 text-gray-400" />
+        </div>
+      </TableCell>
+      <TableCell className="font-medium">
+        {exercise.video_url ? (
+          <button
+            onClick={onVideoClick}
+            className="text-blue-600 hover:text-blue-800 hover:underline text-left truncate block w-full"
+            title={exercise.name}
+          >
+            {exercise.name}
+          </button>
+        ) : (
+          <span className="truncate block" title={exercise.name}>
+            {exercise.name}
+          </span>
+        )}
+      </TableCell>
+      <TableCell>{exercise.sets}</TableCell>
+      <TableCell className="whitespace-nowrap">{exercise.reps}</TableCell>
+      <TableCell>
+        <span className="truncate block" title={exercise.muscle_groups || '-'}>
+          {exercise.muscle_groups || '-'}
+        </span>
+      </TableCell>
+      <TableCell className="whitespace-nowrap">
+        {exercise.rest_minutes}m {exercise.rest_seconds}s
+      </TableCell>
+      <TableCell className="text-right">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onRemove}
+        >
+          <Trash2 className="h-4 w-4 text-red-600" />
+        </Button>
+      </TableCell>
+    </TableRow>
+  )
+}
+
 export default function PlanDetailPage() {
   const params = useParams()
   const [plan, setPlan] = useState<WorkoutPlan | null>(null)
@@ -58,6 +145,13 @@ export default function PlanDetailPage() {
   const [selectedVideo, setSelectedVideo] = useState<{ url: string; title: string } | null>(null)
   const router = useRouter()
   const supabase = createClient()
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
 
   useEffect(() => {
     fetchPlan()
@@ -174,27 +268,24 @@ export default function PlanDetailPage() {
     }
   }
 
-  const handleMoveUp = async (index: number) => {
-    if (index === 0) return
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event
 
-    const newExercises = [...planExercises]
-    ;[newExercises[index - 1], newExercises[index]] = [newExercises[index], newExercises[index - 1]]
+    if (!over || active.id === over.id) {
+      return
+    }
 
-    await updateOrder(newExercises)
-  }
+    const oldIndex = planExercises.findIndex(ex => ex.plan_exercise_id === active.id)
+    const newIndex = planExercises.findIndex(ex => ex.plan_exercise_id === over.id)
 
-  const handleMoveDown = async (index: number) => {
-    if (index === planExercises.length - 1) return
+    const newExercises = arrayMove(planExercises, oldIndex, newIndex)
 
-    const newExercises = [...planExercises]
-    ;[newExercises[index], newExercises[index + 1]] = [newExercises[index + 1], newExercises[index]]
+    // Optimistically update UI
+    setPlanExercises(newExercises)
 
-    await updateOrder(newExercises)
-  }
-
-  const updateOrder = async (exercises: PlanExercise[]) => {
+    // Update in database
     try {
-      const updates = exercises.map((ex, idx) => ({
+      const updates = newExercises.map((ex, idx) => ({
         id: ex.plan_exercise_id,
         order_index: idx,
       }))
@@ -205,10 +296,11 @@ export default function PlanDetailPage() {
           .update({ order_index: update.order_index })
           .eq('id', update.id)
       }
-
-      await fetchPlanExercises()
     } catch (error) {
       console.error('Error updating order:', error)
+      toast.error('Failed to reorder exercises')
+      // Revert on error
+      await fetchPlanExercises()
     }
   }
 
@@ -268,81 +360,40 @@ export default function PlanDetailPage() {
           </div>
         ) : (
           <div className="bg-white md:rounded-lg border-y md:border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[50px]"></TableHead>
-                  <TableHead className="w-[300px]">Exercise Name</TableHead>
-                  <TableHead className="w-[50px]">Sets</TableHead>
-                  <TableHead className="w-[60px]">Reps</TableHead>
-                  <TableHead className="w-[120px]">Muscle Groups</TableHead>
-                  <TableHead className="w-[70px]">Rest</TableHead>
-                  <TableHead className="text-right w-[150px]">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {planExercises.map((exercise, index) => (
-                  <TableRow key={exercise.plan_exercise_id}>
-                    <TableCell>
-                      <div className="flex flex-col gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleMoveUp(index)}
-                          disabled={index === 0}
-                          className="h-5 w-5 p-0"
-                        >
-                          ▲
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleMoveDown(index)}
-                          disabled={index === planExercises.length - 1}
-                          className="h-5 w-5 p-0"
-                        >
-                          ▼
-                        </Button>
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      {exercise.video_url ? (
-                        <button
-                          onClick={() => setSelectedVideo({ url: exercise.video_url!, title: exercise.name })}
-                          className="text-blue-600 hover:text-blue-800 hover:underline text-left truncate block w-full"
-                          title={exercise.name}
-                        >
-                          {exercise.name}
-                        </button>
-                      ) : (
-                        <span className="truncate block" title={exercise.name}>
-                          {exercise.name}
-                        </span>
-                      )}
-                    </TableCell>
-                    <TableCell>{exercise.sets}</TableCell>
-                    <TableCell className="whitespace-nowrap">{exercise.reps}</TableCell>
-                    <TableCell>
-                      <span className="truncate block" title={exercise.muscle_groups || '-'}>
-                        {exercise.muscle_groups || '-'}
-                      </span>
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap">
-                      {exercise.rest_minutes}m {exercise.rest_seconds}s
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleRemoveExercise(exercise.plan_exercise_id)}
-                      >
-                        <Trash2 className="h-4 w-4 text-red-600" />
-                      </Button>
-                    </TableCell>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[50px]"></TableHead>
+                    <TableHead className="w-[300px]">Exercise Name</TableHead>
+                    <TableHead className="w-[50px]">Sets</TableHead>
+                    <TableHead className="w-[60px]">Reps</TableHead>
+                    <TableHead className="w-[120px]">Muscle Groups</TableHead>
+                    <TableHead className="w-[70px]">Rest</TableHead>
+                    <TableHead className="text-right w-[150px]">Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  <SortableContext
+                    items={planExercises.map(ex => ex.plan_exercise_id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {planExercises.map((exercise) => (
+                      <SortableExerciseRow
+                        key={exercise.plan_exercise_id}
+                        exercise={exercise}
+                        onRemove={() => handleRemoveExercise(exercise.plan_exercise_id)}
+                        onVideoClick={() => setSelectedVideo({ url: exercise.video_url!, title: exercise.name })}
+                      />
+                    ))}
+                  </SortableContext>
+                </TableBody>
+              </Table>
+            </DndContext>
           </div>
         )}
       </div>
