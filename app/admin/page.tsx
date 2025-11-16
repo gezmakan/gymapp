@@ -82,33 +82,20 @@ export default function AdminPage() {
         }
       })
 
-      // Get user emails using the function
-      const { data: userEmails, error: emailError } = await supabase
-        .rpc('get_user_emails')
+      // Get current user info
+      const { data: { user: currentUser } } = await supabase.auth.getUser()
 
-      if (emailError) {
-        console.error('Error fetching user emails:', emailError)
-        // Fallback to showing user IDs
-        const uniqueUserIds = Object.keys(userExerciseCounts)
-        const usersList: User[] = uniqueUserIds.map(userId => ({
-          id: userId,
-          email: userId.substring(0, 8) + '...',
-          created_at: new Date().toISOString(),
-          exercise_count: userExerciseCounts[userId]
-        }))
-        setUsers(usersList)
-        return
+      // For now, we'll show the current user if they have exercises
+      const usersList: User[] = []
+
+      if (currentUser && userExerciseCounts[currentUser.id]) {
+        usersList.push({
+          id: currentUser.id,
+          email: currentUser.email || 'Unknown',
+          created_at: currentUser.created_at || new Date().toISOString(),
+          exercise_count: userExerciseCounts[currentUser.id]
+        })
       }
-
-      // Map user emails to exercise counts
-      const usersList: User[] = (userEmails || [])
-        .filter(u => userExerciseCounts[u.user_id])
-        .map(u => ({
-          id: u.user_id,
-          email: u.email,
-          created_at: u.created_at,
-          exercise_count: userExerciseCounts[u.user_id] || 0
-        }))
 
       setUsers(usersList)
     } catch (error) {
@@ -125,19 +112,15 @@ export default function AdminPage() {
 
       if (error) throw error
 
-      // Get user emails
-      const { data: userEmails } = await supabase.rpc('get_user_emails')
-
-      // Create a map of user_id to email
-      const userEmailMap: Record<string, string> = {}
-      userEmails?.forEach((u: any) => {
-        userEmailMap[u.user_id] = u.email
-      })
+      // Get current user info
+      const { data: { user: currentUser } } = await supabase.auth.getUser()
 
       // Add user email info
       const exercisesWithUsers = data?.map(ex => ({
         ...ex,
-        user_email: ex.user_id ? (userEmailMap[ex.user_id] || ex.user_id.substring(0, 8) + '...') : 'Public'
+        user_email: ex.user_id
+          ? (currentUser?.id === ex.user_id ? currentUser.email : ex.user_id.substring(0, 8) + '...')
+          : 'Public'
       }))
 
       setExercises(exercisesWithUsers || [])
