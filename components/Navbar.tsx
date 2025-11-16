@@ -36,7 +36,7 @@ export default function Navbar() {
   return (
     <nav className="bg-white border-b">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
-        <div className="flex items-center gap-4 overflow-x-auto h-14">
+        <div className="flex items-center justify-center gap-4 overflow-x-auto h-14">
           <Link
             href="/plans"
             className={`text-sm font-medium whitespace-nowrap ${
