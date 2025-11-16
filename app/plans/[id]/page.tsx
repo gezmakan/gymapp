@@ -338,9 +338,6 @@ export default function PlanDetailPage() {
         <DialogContent className="sm:!max-w-[800px] w-[95vw] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add Exercise to Plan</DialogTitle>
-            <DialogDescription>
-              Select an exercise from your library to add to this workout plan
-            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
