@@ -123,7 +123,6 @@ export default function ExercisesPage() {
           <div className="flex justify-between items-center mb-4">
             <div>
               <h1 className="text-3xl font-bold">Exercise Library</h1>
-              <p className="text-gray-600 mt-1">Manage your exercises</p>
             </div>
             <div className="flex gap-2">
               <Button onClick={() => router.push('/exercises/add')}>
@@ -135,24 +134,14 @@ export default function ExercisesPage() {
             </div>
           </div>
 
-          <div className="flex gap-2 items-center">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-              <Input
-                placeholder="Search exercises by name or muscle group..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-            >
-              <ArrowUpDown className="mr-2 h-4 w-4" />
-              {sortOrder === 'asc' ? 'A-Z' : 'Z-A'}
-            </Button>
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+            <Input
+              placeholder="Search exercises by name or muscle group..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
           </div>
         </div>
 
@@ -168,7 +157,15 @@ export default function ExercisesPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[300px]">Exercise Name</TableHead>
+                  <TableHead className="w-[300px]">
+                    <button
+                      onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                      className="flex items-center hover:text-gray-900"
+                    >
+                      Exercise Name
+                      <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </button>
+                  </TableHead>
                   <TableHead className="w-[50px]">Sets</TableHead>
                   <TableHead className="w-[60px]">Reps</TableHead>
                   <TableHead className="w-[120px]">Muscle Groups</TableHead>
