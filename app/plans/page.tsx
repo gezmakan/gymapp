@@ -140,6 +140,8 @@ export default function PlansPage() {
   const [selectedPlanForAdd, setSelectedPlanForAdd] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedVideo, setSelectedVideo] = useState<{ url: string; title: string } | null>(null)
+  const [editingPlanId, setEditingPlanId] = useState<string | null>(null)
+  const [editingPlanName, setEditingPlanName] = useState('')
   const router = useRouter()
   const supabase = createClient()
 
@@ -244,6 +246,40 @@ export default function PlansPage() {
       console.error('Error deleting plan:', error)
       toast.error('Failed to delete workout plan')
     }
+  }
+
+  const handleStartEditingPlanName = (planId: string, currentName: string) => {
+    setEditingPlanId(planId)
+    setEditingPlanName(currentName)
+  }
+
+  const handleSavePlanName = async (planId: string) => {
+    if (!editingPlanName.trim()) {
+      toast.error('Plan name cannot be empty')
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('workout_plans')
+        .update({ name: editingPlanName.trim() })
+        .eq('id', planId)
+
+      if (error) throw error
+
+      toast.success('Plan name updated')
+      setEditingPlanId(null)
+      setEditingPlanName('')
+      await fetchPlans()
+    } catch (error) {
+      console.error('Error updating plan name:', error)
+      toast.error('Failed to update plan name')
+    }
+  }
+
+  const handleCancelEditingPlanName = () => {
+    setEditingPlanId(null)
+    setEditingPlanName('')
   }
 
   const handleAddExercise = async (planId: string, exerciseId: string) => {
@@ -409,9 +445,46 @@ export default function PlansPage() {
           <div className="space-y-4 px-4 md:px-0">
             {plans.map((plan) => (
               <Card key={plan.id} className="border-0 md:border shadow-sm">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-xl">{plan.name}</CardTitle>
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between gap-2">
+                    {editingPlanId === plan.id ? (
+                      <div className="flex items-center gap-2 flex-1">
+                        <Input
+                          value={editingPlanName}
+                          onChange={(e) => setEditingPlanName(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              handleSavePlanName(plan.id)
+                            } else if (e.key === 'Escape') {
+                              handleCancelEditingPlanName()
+                            }
+                          }}
+                          className="text-xl font-semibold h-9"
+                          autoFocus
+                        />
+                        <Button
+                          size="sm"
+                          onClick={() => handleSavePlanName(plan.id)}
+                        >
+                          Save
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={handleCancelEditingPlanName}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    ) : (
+                      <CardTitle
+                        className="text-xl cursor-pointer hover:text-blue-600 transition-colors"
+                        onClick={() => handleStartEditingPlanName(plan.id, plan.name)}
+                        title="Click to edit"
+                      >
+                        {plan.name}
+                      </CardTitle>
+                    )}
                     <Button
                       variant="ghost"
                       size="sm"
