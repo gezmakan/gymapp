@@ -495,7 +495,7 @@ export default function PlansPage() {
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-0">
                   {plan.exercises.length === 0 ? (
                     <div className="text-center py-6 border-2 border-dashed rounded-lg">
                       <p className="text-gray-500 text-sm mb-3">No exercises yet</p>
