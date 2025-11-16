@@ -106,11 +106,6 @@ export default function ExercisesPage() {
             <Button onClick={() => router.push('/exercises/add')}>
               <Plus className="mr-2 h-4 w-4" /> Add Exercise
             </Button>
-            {user && isAdmin(user.email) && (
-              <Button variant="secondary" onClick={() => router.push('/admin')}>
-                <Shield className="mr-2 h-4 w-4" /> Admin
-              </Button>
-            )}
             <Button variant="outline" onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" /> Logout
             </Button>
