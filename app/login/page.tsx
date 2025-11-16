@@ -56,8 +56,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4 md:p-0">
+      <Card className="w-full max-w-md border-0 md:border shadow-none md:shadow-sm">
         <CardHeader>
           <CardTitle>{isSignUp ? 'Create Account' : 'Login'}</CardTitle>
           <CardDescription>

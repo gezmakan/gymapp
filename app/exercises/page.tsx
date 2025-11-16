@@ -117,27 +117,27 @@ export default function ExercisesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-7xl mx-auto px-8 md:px-16">
-        <div className="mb-8">
+    <div className="min-h-screen bg-gray-50 md:p-8">
+      <div className="max-w-7xl mx-auto md:px-16">
+        <div className="mb-4 md:mb-8 p-4 md:p-0">
           <div className="flex justify-between items-center mb-4">
             <div>
-              <h1 className="text-3xl font-bold">Exercise Library</h1>
+              <h1 className="text-2xl md:text-3xl font-bold">Exercise Library</h1>
             </div>
             <div className="flex gap-2">
-              <Button onClick={() => router.push('/exercises/add')}>
-                <Plus className="mr-2 h-4 w-4" /> Add Exercise
+              <Button onClick={() => router.push('/exercises/add')} size="sm" className="md:h-10">
+                <Plus className="h-4 w-4 md:mr-2" /> <span className="hidden md:inline">Add Exercise</span>
               </Button>
-              <Button variant="outline" onClick={handleLogout}>
-                <LogOut className="mr-2 h-4 w-4" /> Logout
+              <Button variant="outline" onClick={handleLogout} size="sm" className="md:h-10">
+                <LogOut className="h-4 w-4 md:mr-2" /> <span className="hidden md:inline">Logout</span>
               </Button>
             </div>
           </div>
 
-          <div className="relative max-w-md">
+          <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
             <Input
-              placeholder="Search exercises by name or muscle group..."
+              placeholder="Search exercises..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -146,14 +146,14 @@ export default function ExercisesPage() {
         </div>
 
         {exercises.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-lg border">
+          <div className="text-center py-12 bg-white md:rounded-lg border-y md:border mx-4 md:mx-0">
             <p className="text-gray-600 mb-4">No exercises yet. Add your first exercise!</p>
             <Button onClick={() => router.push('/exercises/add')}>
               <Plus className="mr-2 h-4 w-4" /> Add Exercise
             </Button>
           </div>
         ) : (
-          <div className="bg-white rounded-lg border">
+          <div className="bg-white md:rounded-lg border-y md:border">
             <Table>
               <TableHeader>
                 <TableRow>

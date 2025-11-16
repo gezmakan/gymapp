@@ -152,27 +152,27 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-gray-50 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-4 md:mb-8 p-4 md:p-0">
           <div>
-            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-            <p className="text-gray-600 mt-1">Manage users and exercises</p>
+            <h1 className="text-2xl md:text-3xl font-bold">Admin Dashboard</h1>
+            <p className="text-gray-600 mt-1 text-sm md:text-base">Manage users and exercises</p>
           </div>
-          <Button variant="outline" onClick={() => router.push('/exercises')}>
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Exercises
+          <Button variant="outline" onClick={() => router.push('/exercises')} size="sm" className="md:h-10">
+            <ArrowLeft className="h-4 w-4 md:mr-2" /> <span className="hidden md:inline">Back to Exercises</span>
           </Button>
         </div>
 
         <Tabs defaultValue="exercises" className="space-y-4">
-          <TabsList>
+          <TabsList className="mx-4 md:mx-0">
             <TabsTrigger value="exercises">Exercises</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="stats">Statistics</TabsTrigger>
           </TabsList>
 
           <TabsContent value="exercises" className="space-y-4">
-            <div className="bg-white rounded-lg border">
+            <div className="bg-white md:rounded-lg border-y md:border">
               <div className="p-4 border-b">
                 <h2 className="text-lg font-semibold">All Exercises</h2>
                 <p className="text-sm text-gray-600">Manage all public and private exercises</p>
@@ -232,7 +232,7 @@ export default function AdminPage() {
           </TabsContent>
 
           <TabsContent value="users" className="space-y-4">
-            <div className="bg-white rounded-lg border">
+            <div className="bg-white md:rounded-lg border-y md:border">
               <div className="p-4 border-b">
                 <h2 className="text-lg font-semibold">Users</h2>
                 <p className="text-sm text-gray-600">View all registered users</p>
@@ -265,24 +265,24 @@ export default function AdminPage() {
           </TabsContent>
 
           <TabsContent value="stats" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-white rounded-lg border p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-4 md:px-0">
+              <div className="bg-white md:rounded-lg border-y md:border p-6">
                 <h3 className="text-sm font-medium text-gray-600">Total Exercises</h3>
                 <p className="text-3xl font-bold mt-2">{exercises.length}</p>
               </div>
-              <div className="bg-white rounded-lg border p-6">
+              <div className="bg-white md:rounded-lg border-y md:border p-6">
                 <h3 className="text-sm font-medium text-gray-600">Public Exercises</h3>
                 <p className="text-3xl font-bold mt-2">
                   {exercises.filter(e => !e.is_private).length}
                 </p>
               </div>
-              <div className="bg-white rounded-lg border p-6">
+              <div className="bg-white md:rounded-lg border-y md:border p-6">
                 <h3 className="text-sm font-medium text-gray-600">Private Exercises</h3>
                 <p className="text-3xl font-bold mt-2">
                   {exercises.filter(e => e.is_private).length}
                 </p>
               </div>
-              <div className="bg-white rounded-lg border p-6">
+              <div className="bg-white md:rounded-lg border-y md:border p-6">
                 <h3 className="text-sm font-medium text-gray-600">Users with Exercises</h3>
                 <p className="text-3xl font-bold mt-2">{users.length}</p>
               </div>
