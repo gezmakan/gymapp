@@ -359,7 +359,7 @@ export default function PlansPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 md:p-8">
-      <div className="max-w-7xl mx-auto md:px-16">
+      <div className="max-w-4xl mx-auto md:px-16">
         <div className="mb-4 md:mb-8 p-4 md:p-0">
           <div className="flex justify-between items-center mb-4">
             <div>
