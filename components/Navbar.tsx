@@ -41,21 +41,28 @@ export default function Navbar() {
             href="/plans"
             className={`text-sm font-medium whitespace-nowrap px-4 py-1.5 rounded-full transition-colors ${
               pathname === '/plans'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-orange-300 text-gray-900'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
             Plans
           </Link>
-          {plans.map((plan) => (
-            <Link
-              key={plan.id}
-              href={`/plans#${plan.id}`}
-              className="text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 whitespace-nowrap px-4 py-1.5 rounded-full transition-colors"
-            >
-              {plan.name}
-            </Link>
-          ))}
+          {plans.map((plan) => {
+            const isActive = pathname.includes(`/plans/${plan.id}`)
+            return (
+              <Link
+                key={plan.id}
+                href={`/plans/${plan.id}/workout`}
+                className={`text-sm font-medium whitespace-nowrap px-4 py-1.5 rounded-full transition-colors ${
+                  isActive
+                    ? 'bg-orange-300 text-gray-900'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {plan.name}
+              </Link>
+            )
+          })}
         </div>
       </div>
     </nav>
