@@ -22,6 +22,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import VideoModal from '@/components/VideoModal'
+import { toast } from 'sonner'
+import { Toaster } from '@/components/ui/sonner'
 
 type Exercise = {
   id: string
@@ -122,6 +124,13 @@ export default function PlanDetailPage() {
 
   const handleAddExercise = async (exerciseId: string) => {
     try {
+      // Check if exercise already exists in the plan
+      const alreadyExists = planExercises.some(pe => pe.id === exerciseId)
+      if (alreadyExists) {
+        toast.error('This exercise is already in your plan')
+        return
+      }
+
       const nextOrder = planExercises.length
 
       const { error } = await supabase
@@ -137,11 +146,16 @@ export default function PlanDetailPage() {
       if (error) throw error
 
       await fetchPlanExercises()
-      setShowAddDialog(false)
+
+      // Get the exercise name for the toast
+      const exercise = allExercises.find(ex => ex.id === exerciseId)
+      toast.success(`Added ${exercise?.name || 'exercise'} to plan`)
+
+      // Don't close the modal, just clear search
       setSearchQuery('')
     } catch (error) {
       console.error('Error adding exercise:', error)
-      alert('Failed to add exercise to plan')
+      toast.error('Failed to add exercise to plan')
     }
   }
 
@@ -400,6 +414,8 @@ export default function PlanDetailPage() {
           title={selectedVideo.title}
         />
       )}
+
+      <Toaster />
     </div>
   )
 }
