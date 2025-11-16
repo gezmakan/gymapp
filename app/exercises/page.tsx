@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Plus, Edit, Trash2, LogOut, Video, Shield } from 'lucide-react'
+import { Plus, Edit, Trash2, LogOut, Video, Shield, Search, ArrowUpDown } from 'lucide-react'
 import VideoModal from '@/components/VideoModal'
 import { isAdmin } from '@/lib/admin'
 
@@ -35,11 +35,28 @@ export default function ExercisesPage() {
   const [user, setUser] = useState<any>(null)
   const [selectedVideo, setSelectedVideo] = useState<{ url: string; title: string } | null>(null)
   const [showAll, setShowAll] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
   const router = useRouter()
   const supabase = createClient()
 
   const EXERCISES_PER_PAGE = 30
-  const displayedExercises = showAll ? exercises : exercises.slice(0, EXERCISES_PER_PAGE)
+
+  // Filter and sort exercises
+  const filteredExercises = exercises
+    .filter(ex =>
+      ex.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (ex.muscle_groups?.toLowerCase().includes(searchQuery.toLowerCase()))
+    )
+    .sort((a, b) => {
+      if (sortOrder === 'asc') {
+        return a.name.localeCompare(b.name)
+      } else {
+        return b.name.localeCompare(a.name)
+      }
+    })
+
+  const displayedExercises = showAll ? filteredExercises : filteredExercises.slice(0, EXERCISES_PER_PAGE)
 
   useEffect(() => {
     checkUser()
@@ -101,17 +118,39 @@ export default function ExercisesPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto px-8 md:px-16">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold">Exercise Library</h1>
-            <p className="text-gray-600 mt-1">Manage your exercises</p>
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <h1 className="text-3xl font-bold">Exercise Library</h1>
+              <p className="text-gray-600 mt-1">Manage your exercises</p>
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={() => router.push('/exercises/add')}>
+                <Plus className="mr-2 h-4 w-4" /> Add Exercise
+              </Button>
+              <Button variant="outline" onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" /> Logout
+              </Button>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Button onClick={() => router.push('/exercises/add')}>
-              <Plus className="mr-2 h-4 w-4" /> Add Exercise
-            </Button>
-            <Button variant="outline" onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" /> Logout
+
+          <div className="flex gap-2 items-center">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+              <Input
+                placeholder="Search exercises by name or muscle group..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+            >
+              <ArrowUpDown className="mr-2 h-4 w-4" />
+              {sortOrder === 'asc' ? 'A-Z' : 'Z-A'}
             </Button>
           </div>
         </div>
@@ -186,13 +225,13 @@ export default function ExercisesPage() {
                 ))}
               </TableBody>
             </Table>
-            {exercises.length > EXERCISES_PER_PAGE && (
+            {filteredExercises.length > EXERCISES_PER_PAGE && (
               <div className="p-4 border-t text-center">
                 <Button
                   variant="outline"
                   onClick={() => setShowAll(!showAll)}
                 >
-                  {showAll ? 'Show Less' : `Show All (${exercises.length} exercises)`}
+                  {showAll ? 'Show Less' : `Show All (${filteredExercises.length} exercises)`}
                 </Button>
               </div>
             )}
