@@ -445,7 +445,7 @@ export default function PlansPage() {
           <div className="space-y-4 px-4 md:px-0">
             {plans.map((plan) => (
               <Card key={plan.id} className="border-0 md:border shadow-sm">
-                <CardHeader className="pb-2">
+                <CardHeader className="pb-0">
                   <div className="flex items-center justify-between gap-2">
                     {editingPlanId === plan.id ? (
                       <div className="flex items-center gap-2 flex-1">
