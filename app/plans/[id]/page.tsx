@@ -358,11 +358,11 @@ export default function PlanDetailPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Exercise Name</TableHead>
-                    <TableHead>Sets</TableHead>
-                    <TableHead>Reps</TableHead>
-                    <TableHead>Muscle Groups</TableHead>
-                    <TableHead className="text-right">Action</TableHead>
+                    <TableHead className="w-[35%]">Exercise Name</TableHead>
+                    <TableHead className="w-[10%]">Sets</TableHead>
+                    <TableHead className="w-[10%]">Reps</TableHead>
+                    <TableHead className="w-[30%]">Muscle Groups</TableHead>
+                    <TableHead className="text-right w-[15%]">Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -378,7 +378,7 @@ export default function PlanDetailPage() {
                         <TableCell className="font-medium">{exercise.name}</TableCell>
                         <TableCell>{exercise.sets}</TableCell>
                         <TableCell>{exercise.reps}</TableCell>
-                        <TableCell className="truncate max-w-[150px]">
+                        <TableCell>
                           {exercise.muscle_groups || '-'}
                         </TableCell>
                         <TableCell className="text-right">
