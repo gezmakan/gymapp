@@ -335,7 +335,7 @@ export default function PlanDetailPage() {
 
       {/* Add Exercise Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent className="sm:!max-w-[900px] w-[95vw] max-h-[80vh] overflow-y-auto">
+        <DialogContent className="sm:!max-w-[800px] w-[95vw] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add Exercise to Plan</DialogTitle>
             <DialogDescription>
