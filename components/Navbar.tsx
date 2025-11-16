@@ -36,11 +36,13 @@ export default function Navbar() {
   return (
     <nav className="bg-white border-b">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
-        <div className="flex items-center justify-center gap-4 overflow-x-auto h-14">
+        <div className="flex items-center justify-center gap-2 overflow-x-auto h-14">
           <Link
             href="/plans"
-            className={`text-sm font-medium whitespace-nowrap ${
-              pathname === '/plans' ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'
+            className={`text-sm font-medium whitespace-nowrap px-4 py-1.5 rounded-full transition-colors ${
+              pathname === '/plans'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
             Plans
@@ -49,7 +51,7 @@ export default function Navbar() {
             <Link
               key={plan.id}
               href={`/plans#${plan.id}`}
-              className="text-sm text-gray-600 hover:text-blue-600 whitespace-nowrap"
+              className="text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 whitespace-nowrap px-4 py-1.5 rounded-full transition-colors"
             >
               {plan.name}
             </Link>
