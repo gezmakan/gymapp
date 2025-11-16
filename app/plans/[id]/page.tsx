@@ -358,9 +358,7 @@ export default function PlanDetailPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[40%]">Exercise Name</TableHead>
-                    <TableHead className="w-[10%]">Sets</TableHead>
-                    <TableHead className="w-[10%]">Reps</TableHead>
+                    <TableHead className="w-[60%]">Exercise Name</TableHead>
                     <TableHead className="w-[25%]">Muscle Groups</TableHead>
                     <TableHead className="text-right w-[15%]">Action</TableHead>
                   </TableRow>
@@ -368,7 +366,7 @@ export default function PlanDetailPage() {
                 <TableBody>
                   {availableExercises.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center text-gray-500">
+                      <TableCell colSpan={3} className="text-center text-gray-500">
                         {searchQuery ? 'No exercises found' : 'All exercises have been added'}
                       </TableCell>
                     </TableRow>
@@ -376,8 +374,6 @@ export default function PlanDetailPage() {
                     availableExercises.map((exercise) => (
                       <TableRow key={exercise.id}>
                         <TableCell className="font-medium">{exercise.name}</TableCell>
-                        <TableCell>{exercise.sets}</TableCell>
-                        <TableCell>{exercise.reps}</TableCell>
                         <TableCell>
                           {exercise.muscle_groups || '-'}
                         </TableCell>
