@@ -88,7 +88,7 @@ export default function WorkoutPage() {
         .from('workout_sessions')
         .select('*')
         .eq('workout_plan_id', planId)
-        .order('session_number', { ascending: true })
+        .order('created_at', { ascending: false })
 
       if (sessionsError) throw sessionsError
 
@@ -111,13 +111,42 @@ export default function WorkoutPage() {
         setSessionSets(setsBySession)
       }
 
-      // Don't auto-create sessions anymore
-      setSessions(sessionsData || [])
+      // Auto-create first session if none exist
+      if (!sessionsData || sessionsData.length === 0) {
+        await createNewSession(exerciseList, [])
+        // Fetch again to get the newly created session
+        const { data: newSessionsData } = await supabase
+          .from('workout_sessions')
+          .select('*')
+          .eq('workout_plan_id', planId)
+          .order('created_at', { ascending: false })
 
-      // Set the most recent session as the current editable session
-      if (sessionsData && sessionsData.length > 0) {
-        const mostRecentSession = sessionsData[sessionsData.length - 1]
-        setCurrentSessionId(mostRecentSession.id)
+        setSessions(newSessionsData || [])
+        if (newSessionsData && newSessionsData.length > 0) {
+          setCurrentSessionId(newSessionsData[0].id)
+
+          // Fetch sets for the new session
+          const { data: setsData } = await supabase
+            .from('workout_session_sets')
+            .select('*')
+            .eq('workout_session_id', newSessionsData[0].id)
+
+          const setsBySession: Record<string, SessionSet[]> = {}
+          setsData?.forEach((set: SessionSet & { workout_session_id: string }) => {
+            if (!setsBySession[set.workout_session_id]) {
+              setsBySession[set.workout_session_id] = []
+            }
+            setsBySession[set.workout_session_id].push(set)
+          })
+          setSessionSets(setsBySession)
+        }
+      } else {
+        setSessions(sessionsData || [])
+        // Set the most recent session (now first in list) as the current editable session
+        if (sessionsData && sessionsData.length > 0) {
+          const mostRecentSession = sessionsData[0]
+          setCurrentSessionId(mostRecentSession.id)
+        }
       }
 
     } catch (error) {
@@ -135,6 +164,7 @@ export default function WorkoutPage() {
 
       const nextSessionNumber = existingSessions.length + 1
 
+      // Create new session - will appear at top because sorted by created_at desc
       const { data: newSession, error: sessionError } = await supabase
         .from('workout_sessions')
         .insert({
@@ -149,9 +179,10 @@ export default function WorkoutPage() {
 
       setCurrentSessionId(newSession.id)
 
+      // Get previous session (first in list = most recent before this one) for weight prefill
       let previousSets: SessionSet[] = []
       if (existingSessions.length > 0) {
-        const previousSession = existingSessions[existingSessions.length - 1]
+        const previousSession = existingSessions[0]
         const { data: prevSets } = await supabase
           .from('workout_session_sets')
           .select('*')
@@ -313,7 +344,12 @@ export default function WorkoutPage() {
       <Navbar />
       <div className="flex-1 md:p-8">
         <div className="max-w-full mx-auto">
-          <h1 className="text-2xl md:text-3xl font-bold mb-6 sticky top-14 md:static bg-gray-50 z-40 md:z-auto py-2 px-4">{planName}</h1>
+          <div className="flex items-center justify-between mb-6 sticky top-14 md:static bg-gray-50 z-40 md:z-auto py-2 px-4">
+            <h1 className="text-2xl md:text-3xl font-bold">{planName}</h1>
+            <Button onClick={handleStartNewWorkout} disabled={isCreatingSession} size="sm">
+              {isCreatingSession ? 'Adding...' : 'Add Workout Day'}
+            </Button>
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full border-collapse bg-white">
               <thead>
@@ -413,7 +449,7 @@ export default function WorkoutPage() {
                                       }
                                     }}
                                     placeholder="R"
-                                    className="h-8 w-full text-center border-0 outline-none focus:outline-none"
+                                    className="h-8 w-full text-center border-0 outline-none focus:outline-none placeholder-gray-300"
                                   />
                                   <div className="border-t border-gray-200"></div>
                                   <input
@@ -428,7 +464,7 @@ export default function WorkoutPage() {
                                       }
                                     }}
                                     placeholder="W"
-                                    className="h-8 w-full text-center border-0 outline-none focus:outline-none"
+                                    className="h-8 w-full text-center border-0 outline-none focus:outline-none placeholder-gray-300"
                                   />
                                 </div>
                               )
@@ -439,13 +475,6 @@ export default function WorkoutPage() {
                     </tr>
                   )
                 })}
-                <tr>
-                  <td colSpan={exercises.length + 1} className="p-4 text-left md:text-center bg-gray-50">
-                    <Button onClick={handleStartNewWorkout} disabled={isCreatingSession}>
-                      {isCreatingSession ? 'Adding...' : 'Add Workout Day'}
-                    </Button>
-                  </td>
-                </tr>
               </tbody>
             </table>
           </div>
