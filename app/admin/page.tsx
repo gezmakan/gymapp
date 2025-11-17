@@ -119,7 +119,7 @@ export default function AdminPage() {
       const exercisesWithUsers = data?.map(ex => ({
         ...ex,
         user_email: ex.user_id
-          ? (currentUser?.id === ex.user_id ? currentUser.email : ex.user_id.substring(0, 8) + '...')
+          ? (currentUser?.id === ex.user_id ? currentUser?.email : ex.user_id.substring(0, 8) + '...')
           : 'Public'
       }))
 
