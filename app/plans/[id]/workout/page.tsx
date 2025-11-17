@@ -363,8 +363,9 @@ export default function WorkoutPage() {
                   {exercises.map((exercise, exerciseIdx) => (
                     <th key={exercise.id} className={`p-2 min-w-[200px] max-w-[200px] border-l-8 border-white ${exerciseIdx % 2 === 0 ? 'bg-blue-50' : 'bg-yellow-50'}`}>
                       <div
-                        className={`font-semibold text-sm md:text-lg ${exercise.video_url ? 'cursor-pointer hover:text-blue-600 transition-colors' : ''}`}
+                        className={`font-semibold text-sm md:text-lg ${exercise.video_url ? 'cursor-pointer hover:text-orange-600 transition-colors' : ''}`}
                         onClick={() => {
+                          console.log('Clicked:', exercise.name, 'URL:', exercise.video_url)
                           if (exercise.video_url) {
                             setSelectedVideo({ url: exercise.video_url, title: exercise.name })
                           }
@@ -486,7 +487,8 @@ export default function WorkoutPage() {
       <Footer />
       {selectedVideo && (
         <VideoModal
-          url={selectedVideo.url}
+          isOpen={true}
+          videoUrl={selectedVideo.url}
           title={selectedVideo.title}
           onClose={() => setSelectedVideo(null)}
         />
