@@ -217,7 +217,8 @@ export default function WorkoutPage() {
 
       if (setsError) throw setsError
 
-      setSessions([...existingSessions, newSession])
+      // Add new session at the beginning (newest first)
+      setSessions([newSession, ...existingSessions])
       setSessionSets(prev => ({
         ...prev,
         [newSession.id]: createdSets,
