@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -50,6 +50,7 @@ export default function WorkoutPage() {
   const [lastToastTime, setLastToastTime] = useState(0)
   const [editingDateSessionId, setEditingDateSessionId] = useState<string | null>(null)
   const [selectedVideo, setSelectedVideo] = useState<{ url: string; title: string } | null>(null)
+  const hasAutoCreatedRef = useRef(false)
 
   useEffect(() => {
     fetchWorkoutData()
@@ -111,8 +112,9 @@ export default function WorkoutPage() {
         setSessionSets(setsBySession)
       }
 
-      // Auto-create first session if none exist
-      if (!sessionsData || sessionsData.length === 0) {
+      // Auto-create first session if none exist (and we haven't already done so)
+      if ((!sessionsData || sessionsData.length === 0) && !hasAutoCreatedRef.current) {
+        hasAutoCreatedRef.current = true
         await createNewSession(exerciseList, [])
         // Fetch again to get the newly created session
         const { data: newSessionsData } = await supabase
