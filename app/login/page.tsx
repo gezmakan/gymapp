@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -17,7 +17,8 @@ export default function LoginPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [isSignUp, setIsSignUp] = useState(false)
+  const searchParams = useSearchParams()
+  const [isSignUp, setIsSignUp] = useState(searchParams.get('mode') === 'signup')
   const router = useRouter()
   const supabase = createClient()
 
@@ -54,6 +55,10 @@ export default function LoginPage() {
       setIsLoading(false)
     }
   }
+
+  useEffect(() => {
+    setIsSignUp(searchParams.get('mode') === 'signup')
+  }, [searchParams])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4 md:p-0">
