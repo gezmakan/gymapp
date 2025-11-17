@@ -7,8 +7,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+import VideoModal from '@/components/VideoModal'
 import { toast } from 'sonner'
 import { Toaster } from '@/components/ui/sonner'
+import { Video } from 'lucide-react'
 
 type Exercise = {
   id: string
@@ -16,6 +18,7 @@ type Exercise = {
   sets: number
   reps: string
   muscle_groups: string | null
+  video_url: string | null
 }
 
 type WorkoutSession = {
@@ -46,6 +49,7 @@ export default function WorkoutPage() {
   const [isCreatingSession, setIsCreatingSession] = useState(false)
   const [lastToastTime, setLastToastTime] = useState(0)
   const [editingDateSessionId, setEditingDateSessionId] = useState<string | null>(null)
+  const [selectedVideo, setSelectedVideo] = useState<{ url: string; title: string } | null>(null)
 
   useEffect(() => {
     fetchWorkoutData()
@@ -64,7 +68,7 @@ export default function WorkoutPage() {
 
       const { data: planExercises, error: exercisesError } = await supabase
         .from('workout_plan_exercises')
-        .select('exercise_id, order_index, exercises (id, name, sets, reps, muscle_groups)')
+        .select('exercise_id, order_index, exercises (id, name, sets, reps, muscle_groups, video_url)')
         .eq('workout_plan_id', planId)
         .order('order_index')
 
@@ -76,6 +80,7 @@ export default function WorkoutPage() {
         sets: pe.exercises.sets,
         reps: pe.exercises.reps,
         muscle_groups: pe.exercises.muscle_groups,
+        video_url: pe.exercises.video_url,
       }))
       setExercises(exerciseList)
 
@@ -308,7 +313,7 @@ export default function WorkoutPage() {
       <Navbar />
       <div className="flex-1 p-4 md:p-8">
         <div className="max-w-full mx-auto px-4">
-          <h1 className="text-2xl md:text-3xl font-bold mb-6">{planName}</h1>
+          <h1 className="text-2xl md:text-3xl font-bold mb-6 sticky top-14 md:static bg-gray-50 z-40 md:z-auto py-2">{planName}</h1>
           <div className="overflow-x-auto">
             <table className="w-full border-collapse bg-white">
               <thead>
@@ -317,13 +322,19 @@ export default function WorkoutPage() {
                     <div className="text-sm font-semibold">Date</div>
                   </th>
                   {exercises.map((exercise, exerciseIdx) => (
-                    <th key={exercise.id} className={`p-2 min-w-[280px] border-l-8 border-white ${exerciseIdx % 2 === 0 ? 'bg-blue-50' : 'bg-yellow-50'}`}>
-                      <div className="font-bold text-lg">{exercise.name}</div>
+                    <th key={exercise.id} className={`p-2 min-w-[200px] max-w-[200px] border-l-8 border-white ${exerciseIdx % 2 === 0 ? 'bg-blue-50' : 'bg-yellow-50'}`}>
+                      <div
+                        className={`font-semibold text-sm md:text-lg ${exercise.video_url ? 'cursor-pointer hover:text-blue-600 transition-colors' : ''}`}
+                        onClick={() => {
+                          if (exercise.video_url) {
+                            setSelectedVideo({ url: exercise.video_url, title: exercise.name })
+                          }
+                        }}
+                      >
+                        {exercise.name}
+                      </div>
                       <div className="text-sm font-normal mt-1">{exercise.sets} x {exercise.reps}</div>
-                      {exercise.muscle_groups && (
-                        <div className="text-xs text-gray-600 mt-1">{exercise.muscle_groups}</div>
-                      )}
-                      <div className="grid grid-cols-4 gap-0 mt-2">
+                      <div className="grid grid-cols-4 gap-0 mt-1">
                         {Array.from({ length: 4 }).map((_, setIdx) => (
                           <div key={setIdx} className="text-xs text-gray-500 text-center">
                             Set {setIdx + 1}
@@ -429,9 +440,9 @@ export default function WorkoutPage() {
                   )
                 })}
                 <tr>
-                  <td colSpan={exercises.length + 1} className="p-4 text-center bg-gray-50">
+                  <td colSpan={exercises.length + 1} className="p-4 text-left md:text-center bg-gray-50">
                     <Button onClick={handleStartNewWorkout} disabled={isCreatingSession}>
-                      {isCreatingSession ? 'Creating...' : 'Start New Workout'}
+                      {isCreatingSession ? 'Adding...' : 'Add Workout Day'}
                     </Button>
                   </td>
                 </tr>
@@ -441,6 +452,13 @@ export default function WorkoutPage() {
         </div>
       </div>
       <Footer />
+      {selectedVideo && (
+        <VideoModal
+          url={selectedVideo.url}
+          title={selectedVideo.title}
+          onClose={() => setSelectedVideo(null)}
+        />
+      )}
     </div>
   )
 }

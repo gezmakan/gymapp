@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -10,11 +11,25 @@ export default function Footer() {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
+  const [user, setUser] = useState<any>(null)
+
+  useEffect(() => {
+    checkUser()
+  }, [])
+
+  const checkUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    setUser(user)
+  }
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
     router.push('/login')
     router.refresh()
+  }
+
+  const handleLogin = () => {
+    router.push('/login')
   }
 
   return (
@@ -25,7 +40,7 @@ export default function Footer() {
             href="/exercises"
             className={`text-sm font-medium whitespace-nowrap px-4 py-1.5 rounded-full transition-colors ${
               pathname === '/exercises'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-gradient-to-r from-orange-600 to-orange-700 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -35,7 +50,7 @@ export default function Footer() {
           <Link
             href="/terms"
             className={`text-sm ${
-              pathname === '/terms' ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'
+              pathname === '/terms' ? 'text-indigo-600' : 'text-gray-700 hover:text-indigo-600'
             }`}
           >
             Terms
@@ -43,7 +58,7 @@ export default function Footer() {
           <Link
             href="/privacy"
             className={`text-sm ${
-              pathname === '/privacy' ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'
+              pathname === '/privacy' ? 'text-indigo-600' : 'text-gray-700 hover:text-indigo-600'
             }`}
           >
             Privacy
@@ -51,17 +66,26 @@ export default function Footer() {
           <Link
             href="/about"
             className={`text-sm ${
-              pathname === '/about' ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'
+              pathname === '/about' ? 'text-indigo-600' : 'text-gray-700 hover:text-indigo-600'
             }`}
           >
             About
           </Link>
-          <button
-            onClick={handleLogout}
-            className="text-sm text-gray-700 hover:text-blue-600"
-          >
-            Logout
-          </button>
+          {user ? (
+            <button
+              onClick={handleLogout}
+              className="text-sm text-gray-700 hover:text-indigo-600"
+            >
+              Logout
+            </button>
+          ) : (
+            <button
+              onClick={handleLogin}
+              className="text-sm text-gray-700 hover:text-indigo-600"
+            >
+              Login
+            </button>
+          )}
         </div>
       </div>
     </footer>

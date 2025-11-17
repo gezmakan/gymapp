@@ -15,6 +15,8 @@ import {
 } from '@/components/ui/table'
 import { Plus, Edit, Trash2, LogOut, Video, Shield, Search, ArrowUpDown } from 'lucide-react'
 import VideoModal from '@/components/VideoModal'
+import EditExerciseModal from '@/components/EditExerciseModal'
+import Footer from '@/components/Footer'
 import { isAdmin } from '@/lib/admin'
 
 type Exercise = {
@@ -35,6 +37,7 @@ export default function ExercisesPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
   const [selectedVideo, setSelectedVideo] = useState<{ url: string; title: string } | null>(null)
+  const [editingExerciseId, setEditingExerciseId] = useState<string | null>(null)
   const [showAll, setShowAll] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
@@ -43,19 +46,66 @@ export default function ExercisesPage() {
 
   const EXERCISES_PER_PAGE = 30
 
-  // Filter and sort exercises
-  const filteredExercises = exercises
-    .filter(ex =>
-      ex.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (ex.muscle_groups?.toLowerCase().includes(searchQuery.toLowerCase()))
-    )
-    .sort((a, b) => {
-      if (sortOrder === 'asc') {
-        return a.name.localeCompare(b.name)
+  // Fuzzy match function - returns a score (higher is better, 0 means no match)
+  const fuzzyMatch = (text: string, search: string): number => {
+    text = text.toLowerCase()
+    search = search.toLowerCase()
+
+    // Exact match gets highest score
+    if (text.includes(search)) {
+      return 1000
+    }
+
+    // Fuzzy match - check if all characters appear in order
+    let searchIndex = 0
+    let textIndex = 0
+    let consecutiveMatches = 0
+    let score = 0
+
+    while (textIndex < text.length && searchIndex < search.length) {
+      if (text[textIndex] === search[searchIndex]) {
+        searchIndex++
+        consecutiveMatches++
+        score += consecutiveMatches * 10 // Bonus for consecutive matches
       } else {
-        return b.name.localeCompare(a.name)
+        consecutiveMatches = 0
+      }
+      textIndex++
+    }
+
+    // If we matched all search characters, return the score
+    if (searchIndex === search.length) {
+      return score
+    }
+
+    return 0 // No match
+  }
+
+  // Filter and sort exercises with fuzzy matching
+  const filteredExercises = exercises
+    .map(ex => ({
+      exercise: ex,
+      score: Math.max(
+        fuzzyMatch(ex.name, searchQuery),
+        fuzzyMatch(ex.muscle_groups || '', searchQuery)
+      )
+    }))
+    .filter(({ score }) => score > 0 || searchQuery === '') // Show all if search is empty
+    .sort((a, b) => {
+      // If searching, sort by score first
+      if (searchQuery) {
+        if (b.score !== a.score) {
+          return b.score - a.score
+        }
+      }
+      // Then sort by name
+      if (sortOrder === 'asc') {
+        return a.exercise.name.localeCompare(b.exercise.name)
+      } else {
+        return b.exercise.name.localeCompare(a.exercise.name)
       }
     })
+    .map(({ exercise }) => exercise)
 
   const displayedExercises = showAll ? filteredExercises : filteredExercises.slice(0, EXERCISES_PER_PAGE)
 
@@ -66,11 +116,8 @@ export default function ExercisesPage() {
 
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      router.push('/login')
-    } else {
-      setUser(user)
-    }
+    setUser(user)
+    // Allow viewing exercises even when not logged in
   }
 
   const fetchExercises = async () => {
@@ -118,33 +165,49 @@ export default function ExercisesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 md:p-8">
-      <div className="max-w-7xl mx-auto md:px-16">
+      <div className="max-w-7xl mx-auto md:px-48">
         <div className="mb-4 md:mb-8 p-4 md:p-0">
-          <div className="flex justify-between items-center mb-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold">Exercise Library</h1>
+          <div className="flex justify-between items-center mb-6">
+            <div className="bg-gradient-to-r from-orange-600 to-orange-700 px-6 py-2 rounded-full">
+              <h2 className="text-lg md:text-xl font-bold text-white tracking-wide flex items-center gap-2">
+                <span>🏋️</span>
+                <span>SLMFIT</span>
+              </h2>
             </div>
             <div className="flex gap-2">
-              <Button onClick={() => router.push('/plans')} variant="outline" size="sm" className="md:h-10">
-                <span className="hidden md:inline">Plans</span><span className="md:hidden">Plans</span>
-              </Button>
-              <Button onClick={() => router.push('/exercises/add')} size="sm" className="md:h-10">
-                <Plus className="h-4 w-4 md:mr-2" /> <span className="hidden md:inline">Add Exercise</span>
-              </Button>
-              <Button variant="outline" onClick={handleLogout} size="sm" className="md:h-10">
-                <LogOut className="h-4 w-4 md:mr-2" /> <span className="hidden md:inline">Logout</span>
-              </Button>
+              {user ? (
+                <>
+                  <Button onClick={() => router.push('/plans')} variant="outline" size="sm" className="md:h-10">
+                    <span className="hidden md:inline">Plans</span><span className="md:hidden">Plans</span>
+                  </Button>
+                  <Button onClick={() => router.push('/exercises/add')} size="sm" className="md:h-10">
+                    <Plus className="h-4 w-4 md:mr-2" /> <span className="hidden md:inline">Add Exercise</span>
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button onClick={() => router.push('/signup')} variant="outline" size="sm" className="md:h-10">
+                    Sign Up
+                  </Button>
+                  <Button onClick={() => router.push('/login')} size="sm" className="md:h-10">
+                    Login
+                  </Button>
+                </>
+              )}
             </div>
           </div>
 
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-            <Input
-              placeholder="Search exercises..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-2xl md:text-3xl font-bold">Exercise Library</h1>
+            <div className="relative max-w-xs">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+              <Input
+                placeholder="Search exercises..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
           </div>
         </div>
 
@@ -173,7 +236,7 @@ export default function ExercisesPage() {
                   <TableHead className="w-[60px]">Reps</TableHead>
                   <TableHead className="w-[120px]">Muscle Groups</TableHead>
                   <TableHead className="w-[70px]">Rest</TableHead>
-                  <TableHead className="text-right w-[100px]">Actions</TableHead>
+                  {user && <TableHead className="text-right w-[100px]">Actions</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -183,7 +246,7 @@ export default function ExercisesPage() {
                       {exercise.video_url ? (
                         <button
                           onClick={() => setSelectedVideo({ url: exercise.video_url!, title: exercise.name })}
-                          className="text-blue-600 hover:text-blue-800 hover:underline text-left truncate block w-full"
+                          className="text-indigo-600 hover:text-purple-600 hover:underline text-left truncate block w-full"
                           title={exercise.name}
                         >
                           {exercise.name}
@@ -205,22 +268,15 @@ export default function ExercisesPage() {
                       {exercise.rest_minutes}m {exercise.rest_seconds}s
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
+                      {user && (
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => router.push(`/exercises/edit/${exercise.id}`)}
+                          onClick={() => setEditingExerciseId(exercise.id)}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(exercise.id)}
-                        >
-                          <Trash2 className="h-4 w-4 text-red-600" />
-                        </Button>
-                      </div>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -240,12 +296,26 @@ export default function ExercisesPage() {
         )}
       </div>
 
+      <Footer />
+
       {selectedVideo && (
         <VideoModal
           isOpen={!!selectedVideo}
           onClose={() => setSelectedVideo(null)}
           videoUrl={selectedVideo.url}
           title={selectedVideo.title}
+        />
+      )}
+
+      {editingExerciseId && (
+        <EditExerciseModal
+          isOpen={!!editingExerciseId}
+          onClose={() => setEditingExerciseId(null)}
+          exerciseId={editingExerciseId}
+          onSuccess={() => {
+            fetchExercises()
+            setEditingExerciseId(null)
+          }}
         />
       )}
     </div>

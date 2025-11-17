@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter, useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { ArrowLeft, Plus, Trash2, GripVertical, Search } from 'lucide-react'
+import { ArrowLeft, Plus, Trash2, GripVertical, Search, Check, Loader2 } from 'lucide-react'
 import {
   Table,
   TableBody,
@@ -143,6 +143,8 @@ export default function PlanDetailPage() {
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedVideo, setSelectedVideo] = useState<{ url: string; title: string } | null>(null)
+  const [addingExerciseId, setAddingExerciseId] = useState<string | null>(null)
+  const [addedExerciseIds, setAddedExerciseIds] = useState<Set<string>>(new Set())
   const router = useRouter()
   const supabase = createClient()
 
@@ -221,11 +223,19 @@ export default function PlanDetailPage() {
   }
 
   const handleAddExercise = async (exerciseId: string) => {
+    // Prevent multiple clicks
+    if (addingExerciseId === exerciseId || addedExerciseIds.has(exerciseId)) {
+      return
+    }
+
     try {
+      setAddingExerciseId(exerciseId)
+
       // Check if exercise already exists in the plan
       const alreadyExists = planExercises.some(pe => pe.id === exerciseId)
       if (alreadyExists) {
         toast.error('This exercise is already in your plan')
+        setAddingExerciseId(null)
         return
       }
 
@@ -245,15 +255,19 @@ export default function PlanDetailPage() {
 
       await fetchPlanExercises()
 
+      // Mark as added
+      setAddedExerciseIds(prev => new Set([...prev, exerciseId]))
+
       // Get the exercise name for the toast
       const exercise = allExercises.find(ex => ex.id === exerciseId)
       toast.success(`Added ${exercise?.name || 'exercise'} to plan`)
 
-      // Don't close the modal, just clear search
-      setSearchQuery('')
+      // Don't close the modal, keep it open for more additions
     } catch (error) {
       console.error('Error adding exercise:', error)
       toast.error('Failed to add exercise to plan')
+    } finally {
+      setAddingExerciseId(null)
     }
   }
 
@@ -313,10 +327,8 @@ export default function PlanDetailPage() {
     (ex.muscle_groups?.toLowerCase().includes(searchQuery.toLowerCase()))
   )
 
-  // Filter out exercises already in the plan
-  const availableExercises = filteredExercises.filter(
-    ex => !planExercises.some(pe => pe.id === ex.id)
-  )
+  // Show all exercises, but we'll mark already added ones as "Added"
+  const availableExercises = filteredExercises
 
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>
@@ -403,7 +415,13 @@ export default function PlanDetailPage() {
       </div>
 
       {/* Add Exercise Dialog */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+      <Dialog open={showAddDialog} onOpenChange={(open) => {
+        setShowAddDialog(open)
+        if (!open) {
+          // Reset added state when closing dialog
+          setAddedExerciseIds(new Set())
+        }
+      }}>
         <DialogContent className="sm:!max-w-[800px] w-[95vw] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add Exercise to Plan</DialogTitle>
@@ -437,22 +455,32 @@ export default function PlanDetailPage() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    availableExercises.map((exercise) => (
-                      <TableRow key={exercise.id}>
-                        <TableCell className="font-medium">{exercise.name}</TableCell>
-                        <TableCell>
-                          {exercise.muscle_groups || '-'}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            size="sm"
-                            onClick={() => handleAddExercise(exercise.id)}
-                          >
-                            Add
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))
+                    availableExercises.map((exercise) => {
+                      const isAdding = addingExerciseId === exercise.id
+                      const isAlreadyInPlan = planExercises.some(pe => pe.id === exercise.id)
+                      const isAdded = addedExerciseIds.has(exercise.id) || isAlreadyInPlan
+
+                      return (
+                        <TableRow key={exercise.id}>
+                          <TableCell className="font-medium">{exercise.name}</TableCell>
+                          <TableCell>
+                            {exercise.muscle_groups || '-'}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              size="sm"
+                              onClick={() => handleAddExercise(exercise.id)}
+                              disabled={isAdding || isAdded}
+                              className={isAdded ? 'bg-green-600 hover:bg-green-700' : ''}
+                            >
+                              {isAdding && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                              {isAdded && <Check className="mr-2 h-4 w-4" />}
+                              {isAdding ? 'Adding...' : isAdded ? 'Added' : 'Add'}
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      )
+                    })
                   )}
                 </TableBody>
               </Table>
