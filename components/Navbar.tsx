@@ -37,13 +37,12 @@ export default function Navbar() {
     <nav className="bg-white border-b sticky top-0 md:static z-50 md:z-auto">
       <div className="max-w-4xl mx-auto px-4">
         <div className="flex items-center justify-between gap-4 h-14">
-          <Link
-            href="/"
-            className="flex items-center gap-2 font-semibold text-gray-800 text-lg"
+          <div
+            className="flex items-center gap-2 font-semibold text-gray-800 text-lg select-none"
           >
             <span role="img" aria-label="weight lifter">🏋️</span>
             <span>SLMFIT</span>
-          </Link>
+          </div>
 
           <div className="flex items-center gap-2 overflow-x-auto flex-1 justify-end min-w-0">
             {pathname !== '/plans' && (

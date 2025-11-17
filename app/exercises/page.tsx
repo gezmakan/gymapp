@@ -168,20 +168,11 @@ export default function ExercisesPage() {
       <div className="max-w-3xl mx-auto px-4 flex-1 w-full">
         <div className="mb-4 md:mb-8">
           <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-            <h2 className="text-lg md:text-xl font-bold text-gray-800 tracking-wide flex items-center gap-2">
+            <h2 className="text-lg md:text-xl font-bold text-gray-800 tracking-wide flex items-center gap-2 select-none">
               <span>🏋️</span>
               <span>SLMFIT</span>
             </h2>
-            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-              <div className="relative flex-1 min-w-[220px] sm:min-w-[280px]">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-                <Input
-                  placeholder="Search exercises..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
               {!user && (
                 <>
                   <Button onClick={() => router.push('/signup')} variant="outline" size="sm" className="md:h-10">
@@ -210,6 +201,18 @@ export default function ExercisesPage() {
                 </>
               )}
             </div>
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+            <Input
+              placeholder="Search exercises..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
           </div>
         </div>
 

@@ -45,7 +45,7 @@ export default function LoginPage() {
           password,
         })
         if (error) throw error
-        router.push('/exercises')
+        router.push('/plans')
         router.refresh()
       }
     } catch (error: any) {
