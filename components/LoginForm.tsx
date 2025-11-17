@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -21,6 +21,7 @@ export default function LoginForm({ initialMode = 'login' }: LoginFormProps) {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
   const [isSignUp, setIsSignUp] = useState(initialMode === 'signup')
   const router = useRouter()
   const supabase = createClient()
@@ -29,6 +30,7 @@ export default function LoginForm({ initialMode = 'login' }: LoginFormProps) {
     e.preventDefault()
     setIsLoading(true)
     setError(null)
+    setSuccess(null)
 
     try {
       if (isSignUp) {
@@ -42,7 +44,17 @@ export default function LoginForm({ initialMode = 'login' }: LoginFormProps) {
           password,
         })
         if (error) throw error
-        alert('Check your email to confirm your account!')
+
+        // Automatically log in and go to planner
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        })
+        if (signInError) throw signInError
+
+        setSuccess('Account created! Redirecting you to your workout planner...')
+        router.push('/plans')
+        router.refresh()
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -58,6 +70,10 @@ export default function LoginForm({ initialMode = 'login' }: LoginFormProps) {
       setIsLoading(false)
     }
   }
+
+  useEffect(() => {
+    setIsSignUp(initialMode === 'signup')
+  }, [initialMode])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4 md:p-0">
@@ -130,6 +146,11 @@ export default function LoginForm({ initialMode = 'login' }: LoginFormProps) {
             {error && (
               <div className="text-sm text-red-600 bg-red-50 p-3 rounded">
                 {error}
+              </div>
+            )}
+            {success && (
+              <div className="text-sm text-green-700 bg-green-50 p-3 rounded">
+                {success}
               </div>
             )}
             <Button type="submit" className="w-full" disabled={isLoading}>

@@ -175,7 +175,7 @@ export default function ExercisesPage() {
             <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
               {!user && (
                 <>
-                  <Button onClick={() => router.push('/login?mode=signup')} variant="outline" size="sm" className="md:h-10">
+                  <Button onClick={() => router.push('/signup')} variant="outline" size="sm" className="md:h-10">
                     Sign Up
                   </Button>
                   <Button onClick={() => router.push('/login')} size="sm" className="md:h-10">
