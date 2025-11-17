@@ -497,14 +497,24 @@ export default function PlansPage() {
                 </CardHeader>
                 <CardContent className="pt-0">
                   {plan.exercises.length === 0 ? (
-                    <div className="text-center py-6 border-2 border-dashed rounded-lg">
-                      <p className="text-gray-500 text-sm mb-3">No exercises yet</p>
-                      <Button
-                        size="sm"
-                        onClick={() => setSelectedPlanForAdd(plan.id)}
-                      >
-                        <Plus className="h-4 w-4 mr-2" /> Add Exercise
-                      </Button>
+                    <div className="py-6 border-2 border-dashed rounded-lg">
+                      <p className="text-center text-gray-500 text-sm mb-3">No exercises yet</p>
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSelectedPlanForAdd(plan.id)}
+                        >
+                          <Plus className="h-4 w-4 mr-2" /> Add Exercise
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => router.push(`/plans/${plan.id}/workout`)}
+                        >
+                          Open Tracker
+                        </Button>
+                      </div>
                     </div>
                   ) : (
                     <div className="-mt-4">
@@ -539,13 +549,20 @@ export default function PlansPage() {
                           </TableBody>
                         </Table>
                       </DndContext>
-                      <div className="mt-3">
+                      <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => setSelectedPlanForAdd(plan.id)}
                         >
                           <Plus className="h-4 w-4 mr-2" /> Add Exercise
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => router.push(`/plans/${plan.id}/workout`)}
+                        >
+                          Open Tracker
                         </Button>
                       </div>
                     </div>
