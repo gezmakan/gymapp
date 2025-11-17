@@ -36,15 +36,15 @@ export default function Navbar() {
   return (
     <nav className="bg-white border-b sticky top-0 md:static z-50 md:z-auto">
       <div className="max-w-4xl mx-auto px-4">
-        <div className="flex items-center justify-between gap-4 h-14">
+        <div className="flex items-center justify-between gap-4 h-14 md:grid md:grid-cols-2">
           <div
-            className="flex items-center gap-2 font-semibold text-gray-800 text-lg select-none"
+            className="flex items-center gap-1 md:gap-2 font-semibold text-gray-800 text-sm md:text-lg select-none"
           >
-            <span role="img" aria-label="weight lifter">🏋️</span>
+            <span role="img" aria-label="weight lifter" className="text-base md:text-xl">🏋️</span>
             <span>SLMFIT</span>
           </div>
 
-          <div className="flex items-center gap-2 overflow-x-auto flex-1 justify-end min-w-0">
+          <div className="flex items-center gap-2 overflow-x-auto flex-1 justify-end md:justify-center min-w-0">
             {pathname !== '/plans' && (
               <Link
                 href="/plans"
