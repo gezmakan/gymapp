@@ -439,10 +439,14 @@ export default function PlansPage() {
           </div>
         ) : (
           <div className="space-y-4 px-4 md:px-0">
-            {plans.map((plan) => (
-              <Card key={plan.id} className="border-0 md:border shadow-sm">
-                <CardHeader className="pb-0">
-                  <div className="flex items-center justify-between gap-2">
+            {plans.map((plan, index) => {
+              const colors = ['bg-blue-100', 'bg-green-100', 'bg-purple-100', 'bg-pink-100', 'bg-yellow-100']
+              const bgColor = colors[index % colors.length]
+
+              return (
+              <Card key={plan.id} className="border-0 md:border shadow-sm !py-0 !pb-4 !rounded-none md:!rounded-lg">
+                <CardHeader className={`p-4 ${bgColor}`}>
+                  <div className="flex items-center justify-between gap-2 -my-2">
                     {editingPlanId === plan.id ? (
                       <div className="flex items-center gap-2 flex-1">
                         <Input
@@ -548,7 +552,8 @@ export default function PlansPage() {
                   )}
                 </CardContent>
               </Card>
-            ))}
+              )
+            })}
           </div>
         )}
         </div>

@@ -48,16 +48,25 @@ export default function Navbar() {
             <span className="hidden md:inline">Workout Planner</span>
             <span className="md:hidden">Planner</span>
           </Link>
-          {plans.map((plan) => {
+          {plans.map((plan, index) => {
             const isActive = pathname.includes(`/plans/${plan.id}`)
+            const colors = [
+              { bg: 'bg-blue-100', hover: 'hover:bg-blue-200', active: 'bg-blue-300' },
+              { bg: 'bg-green-100', hover: 'hover:bg-green-200', active: 'bg-green-300' },
+              { bg: 'bg-purple-100', hover: 'hover:bg-purple-200', active: 'bg-purple-300' },
+              { bg: 'bg-pink-100', hover: 'hover:bg-pink-200', active: 'bg-pink-300' },
+              { bg: 'bg-yellow-100', hover: 'hover:bg-yellow-200', active: 'bg-yellow-300' },
+            ]
+            const colorSet = colors[index % colors.length]
+
             return (
               <Link
                 key={plan.id}
                 href={`/plans/${plan.id}/workout`}
-                className={`text-sm font-medium whitespace-nowrap px-4 py-1.5 rounded-full transition-colors ${
+                className={`text-sm font-medium whitespace-nowrap px-4 py-1.5 rounded-full transition-colors text-gray-900 ${
                   isActive
-                    ? 'bg-orange-300 text-gray-900'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? colorSet.active
+                    : `${colorSet.bg} ${colorSet.hover}`
                 }`}
               >
                 {plan.name}

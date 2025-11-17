@@ -41,6 +41,7 @@ export default function WorkoutPage() {
   const supabase = createClient()
 
   const [planName, setPlanName] = useState('')
+  const [planIndex, setPlanIndex] = useState(0)
   const [exercises, setExercises] = useState<Exercise[]>([])
   const [sessions, setSessions] = useState<WorkoutSession[]>([])
   const [sessionSets, setSessionSets] = useState<Record<string, SessionSet[]>>({})
@@ -58,6 +59,7 @@ export default function WorkoutPage() {
 
   const fetchWorkoutData = async () => {
     try {
+      // Get current plan name
       const { data: plan, error: planError } = await supabase
         .from('workout_plans')
         .select('name')
@@ -66,6 +68,19 @@ export default function WorkoutPage() {
 
       if (planError) throw planError
       setPlanName(plan.name)
+
+      // Get all plans to determine the index for color
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: allPlans } = await supabase
+          .from('workout_plans')
+          .select('id')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+
+        const index = allPlans?.findIndex(p => p.id === planId) ?? 0
+        setPlanIndex(index)
+      }
 
       const { data: planExercises, error: exercisesError } = await supabase
         .from('workout_plan_exercises')
@@ -347,7 +362,12 @@ export default function WorkoutPage() {
       <Navbar />
       <div className="flex-1 md:p-8">
         <div className="max-w-full mx-auto">
-          <div className="flex items-center justify-between mb-6 sticky top-14 md:static bg-gray-50 z-40 md:z-auto py-2 px-4">
+          <div className={`flex items-center justify-between mb-6 sticky top-14 md:static z-40 md:z-auto py-2 px-4 rounded-lg ${
+            (() => {
+              const colors = ['bg-blue-100', 'bg-green-100', 'bg-purple-100', 'bg-pink-100', 'bg-yellow-100']
+              return colors[planIndex % colors.length]
+            })()
+          }`}>
             <h1 className="text-2xl md:text-3xl font-bold">{planName}</h1>
             <Button onClick={handleStartNewWorkout} disabled={isCreatingSession} size="sm">
               {isCreatingSession ? 'Adding...' : 'Add Workout Day'}
@@ -357,11 +377,21 @@ export default function WorkoutPage() {
             <table className="w-full border-collapse bg-white">
               <thead>
                 <tr>
-                  <th className="bg-gray-100 p-2 min-w-[80px] sticky left-0 z-10">
+                  <th className={`p-2 min-w-[80px] sticky left-0 z-10 ${
+                    (() => {
+                      const colors = ['bg-blue-100', 'bg-green-100', 'bg-purple-100', 'bg-pink-100', 'bg-yellow-100']
+                      return colors[planIndex % colors.length]
+                    })()
+                  }`}>
                     <div className="text-sm font-semibold">Date</div>
                   </th>
                   {exercises.map((exercise, exerciseIdx) => (
-                    <th key={exercise.id} className={`p-2 min-w-[200px] max-w-[200px] border-l-8 border-white ${exerciseIdx % 2 === 0 ? 'bg-blue-50' : 'bg-yellow-50'}`}>
+                    <th key={exercise.id} className={`p-2 min-w-[200px] max-w-[200px] border-l-8 border-white ${
+                      (() => {
+                        const colors = ['bg-blue-100', 'bg-green-100', 'bg-purple-100', 'bg-pink-100', 'bg-yellow-100']
+                        return colors[planIndex % colors.length]
+                      })()
+                    }`}>
                       <div
                         className={`font-semibold text-sm md:text-lg ${exercise.video_url ? 'cursor-pointer hover:text-orange-600 transition-colors' : ''}`}
                         onClick={() => {

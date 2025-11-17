@@ -168,8 +168,8 @@ export default function ExercisesPage() {
       <div className="max-w-7xl mx-auto md:px-48">
         <div className="mb-4 md:mb-8 p-4 md:p-0">
           <div className="flex justify-between items-center mb-6">
-            <div className="bg-gradient-to-r from-orange-600 to-orange-700 px-6 py-2 rounded-full">
-              <h2 className="text-lg md:text-xl font-bold text-white tracking-wide flex items-center gap-2">
+            <div>
+              <h2 className="text-lg md:text-xl font-bold text-gray-800 tracking-wide flex items-center gap-2">
                 <span>🏋️</span>
                 <span>SLMFIT</span>
               </h2>
@@ -177,12 +177,12 @@ export default function ExercisesPage() {
             <div className="flex gap-2">
               {user ? (
                 <>
-                  <Button onClick={() => router.push('/plans')} variant="outline" size="sm" className="md:h-10">
+                  <button
+                    onClick={() => router.push('/plans')}
+                    className="text-sm font-medium whitespace-nowrap px-4 py-1.5 rounded-full transition-colors bg-gradient-to-r from-orange-600 to-orange-700 text-white hover:from-orange-700 hover:to-orange-800"
+                  >
                     <span className="hidden md:inline">Workout Planner</span><span className="md:hidden">Planner</span>
-                  </Button>
-                  <Button onClick={() => router.push('/exercises/add')} size="sm" className="md:h-10">
-                    <Plus className="h-4 w-4 md:mr-2" /> <span className="hidden md:inline">Add Exercise</span>
-                  </Button>
+                  </button>
                 </>
               ) : (
                 <>
@@ -197,9 +197,16 @@ export default function ExercisesPage() {
             </div>
           </div>
 
-          <div className="flex justify-between items-center mb-4">
+          <div className="grid grid-cols-3 items-center mb-4 gap-4">
             <h1 className="text-2xl md:text-3xl font-bold">Exercise Library</h1>
-            <div className="relative max-w-xs">
+            <div className="flex justify-center">
+              {user && (
+                <Button onClick={() => router.push('/exercises/add')} size="sm" className="md:h-10">
+                  <Plus className="h-4 w-4 md:mr-2" /> <span className="hidden md:inline">Add Exercise</span>
+                </Button>
+              )}
+            </div>
+            <div className="relative max-w-xs ml-auto">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
               <Input
                 placeholder="Search exercises..."
