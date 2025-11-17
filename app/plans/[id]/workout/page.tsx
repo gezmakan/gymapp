@@ -311,9 +311,9 @@ export default function WorkoutPage() {
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Toaster />
       <Navbar />
-      <div className="flex-1 p-4 md:p-8">
-        <div className="max-w-full mx-auto px-4">
-          <h1 className="text-2xl md:text-3xl font-bold mb-6 sticky top-14 md:static bg-gray-50 z-40 md:z-auto py-2">{planName}</h1>
+      <div className="flex-1 md:p-8">
+        <div className="max-w-full mx-auto">
+          <h1 className="text-2xl md:text-3xl font-bold mb-6 sticky top-14 md:static bg-gray-50 z-40 md:z-auto py-2 px-4">{planName}</h1>
           <div className="overflow-x-auto">
             <table className="w-full border-collapse bg-white">
               <thead>
