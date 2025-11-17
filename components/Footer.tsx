@@ -35,7 +35,8 @@ export default function Footer() {
   return (
     <footer className="bg-white border-t mt-auto">
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-4">
-        <div className="flex items-center justify-center gap-6">
+        {/* First row: Exercise List and Login/Logout */}
+        <div className="flex items-center justify-center gap-6 mb-3">
           <Link
             href="/exercises"
             className={`text-sm font-medium whitespace-nowrap px-4 py-1.5 rounded-full transition-colors ${
@@ -47,30 +48,6 @@ export default function Footer() {
             Exercise List
           </Link>
 
-          <Link
-            href="/terms"
-            className={`text-sm ${
-              pathname === '/terms' ? 'text-indigo-600' : 'text-gray-700 hover:text-indigo-600'
-            }`}
-          >
-            Terms
-          </Link>
-          <Link
-            href="/privacy"
-            className={`text-sm ${
-              pathname === '/privacy' ? 'text-indigo-600' : 'text-gray-700 hover:text-indigo-600'
-            }`}
-          >
-            Privacy
-          </Link>
-          <Link
-            href="/about"
-            className={`text-sm ${
-              pathname === '/about' ? 'text-indigo-600' : 'text-gray-700 hover:text-indigo-600'
-            }`}
-          >
-            About
-          </Link>
           {user ? (
             <button
               onClick={handleLogout}
@@ -86,6 +63,34 @@ export default function Footer() {
               Login
             </button>
           )}
+        </div>
+
+        {/* Second row: Legal links */}
+        <div className="flex items-center justify-center gap-6 text-xs text-gray-500">
+          <Link
+            href="/terms"
+            className={`${
+              pathname === '/terms' ? 'text-indigo-600' : 'hover:text-indigo-600'
+            }`}
+          >
+            Terms
+          </Link>
+          <Link
+            href="/privacy"
+            className={`${
+              pathname === '/privacy' ? 'text-indigo-600' : 'hover:text-indigo-600'
+            }`}
+          >
+            Privacy
+          </Link>
+          <Link
+            href="/about"
+            className={`${
+              pathname === '/about' ? 'text-indigo-600' : 'hover:text-indigo-600'
+            }`}
+          >
+            About
+          </Link>
         </div>
       </div>
     </footer>

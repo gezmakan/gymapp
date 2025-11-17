@@ -45,7 +45,8 @@ export default function Navbar() {
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            Plans
+            <span className="hidden md:inline">Workout Planner</span>
+            <span className="md:hidden">Planner</span>
           </Link>
           {plans.map((plan) => {
             const isActive = pathname.includes(`/plans/${plan.id}`)

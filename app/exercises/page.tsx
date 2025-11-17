@@ -178,7 +178,7 @@ export default function ExercisesPage() {
               {user ? (
                 <>
                   <Button onClick={() => router.push('/plans')} variant="outline" size="sm" className="md:h-10">
-                    <span className="hidden md:inline">Plans</span><span className="md:hidden">Plans</span>
+                    <span className="hidden md:inline">Workout Planner</span><span className="md:hidden">Planner</span>
                   </Button>
                   <Button onClick={() => router.push('/exercises/add')} size="sm" className="md:h-10">
                     <Plus className="h-4 w-4 md:mr-2" /> <span className="hidden md:inline">Add Exercise</span>
