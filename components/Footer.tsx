@@ -34,39 +34,16 @@ export default function Footer() {
 
   return (
     <footer className="bg-white border-t mt-auto">
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-4">
-        {/* First row: Exercise List and Login/Logout */}
-        <div className="flex items-center justify-center gap-6 mb-3">
-          <Link
-            href="/exercises"
-            className={`text-sm font-medium whitespace-nowrap px-4 py-1.5 rounded-full transition-colors ${
-              pathname === '/exercises'
-                ? 'bg-gradient-to-r from-orange-600 to-orange-700 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            Exercise List
-          </Link>
-
-          {user ? (
-            <button
-              onClick={handleLogout}
-              className="text-sm text-gray-700 hover:text-indigo-600"
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 space-y-2">
+        <div className="flex items-center justify-center gap-6 text-xs text-gray-500 flex-wrap">
+          {pathname !== '/exercises' && (
+            <Link
+              href="/exercises"
+              className="hover:text-indigo-600"
             >
-              Logout
-            </button>
-          ) : (
-            <button
-              onClick={handleLogin}
-              className="text-sm text-gray-700 hover:text-indigo-600"
-            >
-              Login
-            </button>
+              Exercise Library
+            </Link>
           )}
-        </div>
-
-        {/* Second row: Legal links */}
-        <div className="flex items-center justify-center gap-6 text-xs text-gray-500">
           <Link
             href="/terms"
             className={`${
@@ -91,7 +68,16 @@ export default function Footer() {
           >
             About
           </Link>
+          {user && (
+            <button
+              onClick={handleLogout}
+              className="text-xs text-gray-500 hover:text-indigo-600"
+            >
+              Logout
+            </button>
+          )}
         </div>
+        <div className="text-center text-xs text-gray-400">© SLMFIT</div>
       </div>
     </footer>
   )

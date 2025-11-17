@@ -36,7 +36,7 @@ export default function ExercisesPage() {
   const [exercises, setExercises] = useState<Exercise[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
-  const [selectedVideo, setSelectedVideo] = useState<{ url: string; title: string } | null>(null)
+  const [selectedVideo, setSelectedVideo] = useState<{ url: string; title: string; exercise?: Exercise } | null>(null)
   const [editingExerciseId, setEditingExerciseId] = useState<string | null>(null)
   const [showAll, setShowAll] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -164,27 +164,25 @@ export default function ExercisesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 md:p-8">
-      <div className="max-w-7xl mx-auto md:px-48">
-        <div className="mb-4 md:mb-8 p-4 md:p-0">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h2 className="text-lg md:text-xl font-bold text-gray-800 tracking-wide flex items-center gap-2">
-                <span>🏋️</span>
-                <span>SLMFIT</span>
-              </h2>
-            </div>
-            <div className="flex gap-2">
-              {user ? (
-                <>
-                  <button
-                    onClick={() => router.push('/plans')}
-                    className="text-sm font-medium whitespace-nowrap px-4 py-1.5 rounded-full transition-colors bg-gradient-to-r from-orange-600 to-orange-700 text-white hover:from-orange-700 hover:to-orange-800"
-                  >
-                    <span className="hidden md:inline">Workout Planner</span><span className="md:hidden">Planner</span>
-                  </button>
-                </>
-              ) : (
+    <div className="min-h-screen bg-gray-50 md:p-8 flex flex-col">
+      <div className="max-w-3xl mx-auto px-4 flex-1 w-full">
+        <div className="mb-4 md:mb-8">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <h2 className="text-lg md:text-xl font-bold text-gray-800 tracking-wide flex items-center gap-2">
+              <span>🏋️</span>
+              <span>SLMFIT</span>
+            </h2>
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+              <div className="relative flex-1 min-w-[220px] sm:min-w-[280px]">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                <Input
+                  placeholder="Search exercises..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              {!user && (
                 <>
                   <Button onClick={() => router.push('/signup')} variant="outline" size="sm" className="md:h-10">
                     Sign Up
@@ -197,23 +195,20 @@ export default function ExercisesPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 items-center mb-4 gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <h1 className="text-2xl md:text-3xl font-bold">Exercise Library</h1>
-            <div className="flex justify-center">
+            <div className="flex gap-2">
               {user && (
-                <Button onClick={() => router.push('/exercises/add')} size="sm" className="md:h-10">
-                  <Plus className="h-4 w-4 md:mr-2" /> <span className="hidden md:inline">Add Exercise</span>
-                </Button>
+                <>
+                  <Button onClick={() => router.push('/plans')} size="sm" className="md:h-10">
+                    Workout Planner
+                  </Button>
+                  <Button onClick={() => router.push('/exercises/add')} size="sm" className="md:h-10">
+                    <Plus className="h-4 w-4 md:mr-2" /> <span className="hidden md:inline">Add Exercise</span>
+                    <span className="md:hidden">Add</span>
+                  </Button>
+                </>
               )}
-            </div>
-            <div className="relative max-w-xs ml-auto">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-              <Input
-                placeholder="Search exercises..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
             </div>
           </div>
         </div>
@@ -226,11 +221,11 @@ export default function ExercisesPage() {
             </Button>
           </div>
         ) : (
-          <div className="bg-white md:rounded-lg border-y md:border">
+          <div className="bg-white md:rounded-lg border-y md:border mx-4 md:mx-auto md:max-w-3xl">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[300px]">
+                  <TableHead className="w-[240px]">
                     <button
                       onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
                       className="flex items-center hover:text-gray-900"
@@ -239,10 +234,7 @@ export default function ExercisesPage() {
                       <ArrowUpDown className="ml-2 h-4 w-4" />
                     </button>
                   </TableHead>
-                  <TableHead className="w-[50px]">Sets</TableHead>
-                  <TableHead className="w-[60px]">Reps</TableHead>
                   <TableHead className="w-[120px]">Muscle Groups</TableHead>
-                  <TableHead className="w-[70px]">Rest</TableHead>
                   {user && <TableHead className="text-right w-[100px]">Actions</TableHead>}
                 </TableRow>
               </TableHeader>
@@ -252,7 +244,7 @@ export default function ExercisesPage() {
                     <TableCell className="font-medium max-w-[200px]">
                       {exercise.video_url ? (
                         <button
-                          onClick={() => setSelectedVideo({ url: exercise.video_url!, title: exercise.name })}
+                          onClick={() => setSelectedVideo({ url: exercise.video_url!, title: exercise.name, exercise })}
                           className="text-indigo-600 hover:text-purple-600 hover:underline text-left truncate block w-full"
                           title={exercise.name}
                         >
@@ -264,15 +256,10 @@ export default function ExercisesPage() {
                         </span>
                       )}
                     </TableCell>
-                    <TableCell>{exercise.sets}</TableCell>
-                    <TableCell className="whitespace-nowrap">{exercise.reps}</TableCell>
                     <TableCell>
                       <span className="truncate block" title={exercise.muscle_groups || '-'}>
                         {exercise.muscle_groups || '-'}
                       </span>
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap">
-                      {exercise.rest_minutes}m {exercise.rest_seconds}s
                     </TableCell>
                     <TableCell className="text-right">
                       {user && (
@@ -311,6 +298,7 @@ export default function ExercisesPage() {
           onClose={() => setSelectedVideo(null)}
           videoUrl={selectedVideo.url}
           title={selectedVideo.title}
+          exercise={selectedVideo.exercise}
         />
       )}
 
