@@ -18,6 +18,7 @@ import VideoModal from '@/components/VideoModal'
 import EditExerciseModal from '@/components/EditExerciseModal'
 import Footer from '@/components/Footer'
 import { isAdmin } from '@/lib/admin'
+import Navbar from '@/components/Navbar'
 
 type Exercise = {
   id: string
@@ -165,54 +166,31 @@ export default function ExercisesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 md:p-8 flex flex-col pt-4">
+      <Navbar />
       <div className="max-w-3xl mx-auto px-4 flex-1 w-full">
         <div className="mb-4 md:mb-8">
-          <div className="flex items-center gap-3 mb-4 flex-nowrap overflow-x-auto">
-            <h2 className="text-lg md:text-xl font-bold text-gray-800 tracking-wide flex items-center gap-2 select-none shrink-0">
-              <span>🏋️</span>
-              <span>SLMFIT</span>
-            </h2>
-            <div className="flex items-center gap-2 ml-auto shrink-0">
-              {!user && (
-                <>
-                  <Button onClick={() => router.push('/signup')} variant="outline" size="sm" className="md:h-10">
-                    Sign Up
-                  </Button>
-                  <Button onClick={() => router.push('/login')} size="sm" className="md:h-10">
-                    Login
-                  </Button>
-                </>
-              )}
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center justify-between gap-3 mt-2 md:mt-4">
             <h1 className="text-2xl md:text-3xl font-bold">Exercise Library</h1>
-            <div className="flex gap-2">
-              {user && (
-                <>
-                  <Button onClick={() => router.push('/plans')} size="sm" className="md:h-10">
-                    Workout Planner
-                  </Button>
-                  <Button onClick={() => router.push('/exercises/add')} size="sm" className="md:h-10">
-                    <Plus className="h-4 w-4 md:mr-2" /> <span className="hidden md:inline">Add Exercise</span>
-                    <span className="md:hidden">Add</span>
-                  </Button>
-                </>
-              )}
-            </div>
           </div>
         </div>
 
         <div className="mb-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-            <Input
-              placeholder="Search exercises..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
+          <div className="flex items-center gap-3">
+            <div className="relative flex-1 max-w-xl">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+              <Input
+                placeholder="Search exercises..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 w-full"
+              />
+            </div>
+            {user && (
+              <Button onClick={() => router.push('/exercises/add')} size="sm" className="md:h-10 flex-shrink-0">
+                <Plus className="h-4 w-4 md:mr-2" /> <span className="hidden md:inline">Add Exercise</span>
+                <span className="md:hidden">Add</span>
+              </Button>
+            )}
           </div>
         </div>
 

@@ -52,16 +52,16 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center gap-2 overflow-x-auto flex-1 justify-end min-w-0 flex-nowrap ml-auto">
-            {pathname !== '/plans' && (
+            {user && !pathname.startsWith('/plans') && (
               <Link
                 href="/plans"
-                className="text-sm font-medium whitespace-nowrap px-4 py-1.5 rounded-full transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200"
+                className="text-sm font-medium whitespace-nowrap px-4 py-1.5 rounded-full transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200 md:mr-4"
               >
-                <span className="hidden md:inline">Workout Planner</span>
-                <span className="md:hidden">Planner</span>
+                <span className="hidden md:inline">Plan your workout</span>
+                <span className="md:hidden">Plan your workout</span>
               </Link>
             )}
-            {plans.map((plan, index) => {
+            {!pathname.startsWith('/exercises') && plans.map((plan, index) => {
               const isActive = pathname.includes(`/plans/${plan.id}`)
               const colors = [
                 { bg: 'bg-blue-100', hover: 'hover:bg-blue-200', active: 'bg-blue-300' },
