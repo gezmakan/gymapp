@@ -227,8 +227,8 @@ export default function ExercisesPage() {
           <div className="bg-white md:rounded-lg border-y md:border -mx-4 md:mx-auto md:max-w-3xl">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[240px]">
+                <TableRow className="bg-orange-50">
+                  <TableHead className="w-[280px] md:w-[240px]">
                     <button
                       onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
                       className="flex items-center hover:text-gray-900"
@@ -244,11 +244,11 @@ export default function ExercisesPage() {
               <TableBody>
                 {displayedExercises.map((exercise) => (
                   <TableRow key={exercise.id}>
-                    <TableCell className="font-medium max-w-[200px]">
+                    <TableCell className="font-medium max-w-[240px] md:max-w-[200px]">
                       {exercise.video_url ? (
                         <button
                           onClick={() => setSelectedVideo({ url: exercise.video_url!, title: exercise.name, exercise })}
-                          className="text-indigo-600 hover:text-purple-600 hover:underline text-left truncate block w-full"
+                          className="text-orange-500 hover:text-orange-600 hover:underline text-left truncate block w-full"
                           title={exercise.name}
                         >
                           {exercise.name}
