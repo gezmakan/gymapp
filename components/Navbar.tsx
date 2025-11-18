@@ -12,12 +12,19 @@ type WorkoutPlan = {
 
 export default function Navbar() {
   const [plans, setPlans] = useState<WorkoutPlan[]>([])
+  const [user, setUser] = useState<any>(null)
   const pathname = usePathname()
   const supabase = createClient()
 
   useEffect(() => {
     fetchPlans()
+    checkUser()
   }, [])
+
+  const checkUser = async () => {
+    const { data } = await supabase.auth.getUser()
+    setUser(data.user)
+  }
 
   const fetchPlans = async () => {
     try {
@@ -36,15 +43,15 @@ export default function Navbar() {
   return (
     <nav className="bg-white border-b sticky top-0 md:static z-50 md:z-auto">
       <div className="max-w-4xl mx-auto px-4">
-        <div className="flex items-center justify-between gap-4 h-14 md:grid md:grid-cols-2">
+        <div className="flex items-center gap-3 h-14 flex-nowrap overflow-x-auto">
           <div
-            className="flex items-center gap-1 md:gap-2 font-semibold text-gray-800 text-sm md:text-lg select-none"
+            className="flex items-center gap-1 md:gap-2 font-semibold text-gray-800 text-sm md:text-lg select-none shrink-0"
           >
             <span role="img" aria-label="weight lifter" className="text-base md:text-xl">🏋️</span>
             <span>SLMFIT</span>
           </div>
 
-          <div className="flex items-center gap-2 overflow-x-auto flex-1 justify-end md:justify-center min-w-0">
+          <div className="flex items-center gap-2 overflow-x-auto flex-1 justify-end min-w-0 flex-nowrap ml-auto">
             {pathname !== '/plans' && (
               <Link
                 href="/plans"
@@ -79,6 +86,22 @@ export default function Navbar() {
                 </Link>
               )
             })}
+            {!user && (
+              <>
+                <Link
+                  href="/signup"
+                  className="text-sm font-medium whitespace-nowrap px-4 py-1.5 rounded-full transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200"
+                >
+                  Sign Up
+                </Link>
+                <Link
+                  href="/login"
+                  className="text-sm font-medium whitespace-nowrap px-4 py-1.5 rounded-full transition-colors bg-gray-900 text-white hover:bg-gray-800"
+                >
+                  Login
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>

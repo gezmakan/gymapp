@@ -164,15 +164,15 @@ export default function ExercisesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 md:p-8 flex flex-col">
+    <div className="min-h-screen bg-gray-50 md:p-8 flex flex-col pt-4">
       <div className="max-w-3xl mx-auto px-4 flex-1 w-full">
         <div className="mb-4 md:mb-8">
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-            <h2 className="text-lg md:text-xl font-bold text-gray-800 tracking-wide flex items-center gap-2 select-none">
+          <div className="flex items-center gap-3 mb-4 flex-nowrap overflow-x-auto">
+            <h2 className="text-lg md:text-xl font-bold text-gray-800 tracking-wide flex items-center gap-2 select-none shrink-0">
               <span>🏋️</span>
               <span>SLMFIT</span>
             </h2>
-            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
+            <div className="flex items-center gap-2 ml-auto shrink-0">
               {!user && (
                 <>
                   <Button onClick={() => router.push('/signup')} variant="outline" size="sm" className="md:h-10">
@@ -217,14 +217,14 @@ export default function ExercisesPage() {
         </div>
 
         {exercises.length === 0 ? (
-          <div className="text-center py-12 bg-white md:rounded-lg border-y md:border mx-4 md:mx-0">
+          <div className="text-center py-12 bg-white md:rounded-lg border-y md:border -mx-4 md:mx-0">
             <p className="text-gray-600 mb-4">No exercises yet. Add your first exercise!</p>
             <Button onClick={() => router.push('/exercises/add')}>
               <Plus className="mr-2 h-4 w-4" /> Add Exercise
             </Button>
           </div>
         ) : (
-          <div className="bg-white md:rounded-lg border-y md:border mx-4 md:mx-auto md:max-w-3xl">
+          <div className="bg-white md:rounded-lg border-y md:border -mx-4 md:mx-auto md:max-w-3xl">
             <Table>
               <TableHeader>
                 <TableRow>
