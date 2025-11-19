@@ -31,6 +31,8 @@ import { toast } from 'sonner'
 import { Toaster } from '@/components/ui/sonner'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+import { usePlansStore } from '@/hooks/usePlansStore'
+import type { Exercise, PlanExercise, WorkoutPlanSummary } from '@/types/plans'
 import {
   DndContext,
   closestCenter,
@@ -49,31 +51,7 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
-type Exercise = {
-  id: string
-  name: string
-  sets: number
-  reps: string
-  video_url: string | null
-  muscle_groups: string | null
-  rest_minutes: number
-  rest_seconds: number
-}
-
-type PlanExercise = Exercise & {
-  plan_exercise_id: string
-  order_index: number
-  is_hidden: boolean
-}
-
-type WorkoutPlan = {
-  id: string
-  user_id: string
-  name: string
-  created_at: string
-  exercises: PlanExercise[]
-  hiddenExercises: PlanExercise[]
-}
+type WorkoutPlan = WorkoutPlanSummary
 
 // Sortable Row Component
 function SortableExerciseRow({
@@ -161,9 +139,8 @@ function SortableExerciseRow({
 }
 
 export default function PlansPage() {
-  const [plans, setPlans] = useState<WorkoutPlan[]>([])
+  const { plans, isLoading: plansLoading, refresh: refreshPlans } = usePlansStore()
   const [allExercises, setAllExercises] = useState<Exercise[]>([])
-  const [isLoading, setIsLoading] = useState(true)
   const [selectedPlanForAdd, setSelectedPlanForAdd] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedVideo, setSelectedVideo] = useState<{ url: string; title: string } | null>(null)
@@ -189,7 +166,6 @@ const sensors = useSensors(
 
   useEffect(() => {
     checkUser()
-    fetchPlans()
     fetchAllExercises()
   }, [])
 
@@ -197,54 +173,6 @@ const sensors = useSensors(
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
       router.push('/login')
-    }
-  }
-
-  const fetchPlans = async () => {
-    try {
-      const { data: plansData, error: plansError } = await supabase
-        .from('workout_plans')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (plansError) throw plansError
-
-      // Fetch exercises for each plan
-      const plansWithExercises = await Promise.all(
-        (plansData || []).map(async (plan) => {
-          const { data: exercisesData, error: exercisesError } = await supabase
-            .from('workout_plan_exercises')
-            .select(`
-              id,
-              order_index,
-              is_hidden,
-              exercises (*)
-            `)
-            .eq('workout_plan_id', plan.id)
-            .order('order_index', { ascending: true })
-
-          if (exercisesError) throw exercisesError
-
-          const exercises: PlanExercise[] = (exercisesData || []).map((item: any) => ({
-            ...item.exercises,
-            plan_exercise_id: item.id,
-            order_index: item.order_index,
-            is_hidden: item.is_hidden,
-          }))
-
-          return {
-            ...plan,
-            exercises: exercises.filter(ex => !ex.is_hidden),
-            hiddenExercises: exercises.filter(ex => ex.is_hidden),
-          }
-        })
-      )
-
-      setPlans(plansWithExercises)
-    } catch (error) {
-      console.error('Error fetching plans:', error)
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -273,7 +201,7 @@ const sensors = useSensors(
 
       if (error) throw error
       toast.success('Plan deleted')
-      fetchPlans()
+      refreshPlans()
     } catch (error) {
       console.error('Error deleting plan:', error)
       toast.error('Failed to delete workout plan')
@@ -310,7 +238,7 @@ const sensors = useSensors(
 
       if (error) throw error
       toast.success('Plan name updated')
-      await fetchPlans()
+      await refreshPlans()
     } catch (error) {
       console.error('Error updating plan name:', error)
       toast.error('Failed to update plan name')
@@ -357,7 +285,7 @@ const sensors = useSensors(
       toast.success(`Added ${exercise?.name || 'exercise'} to plan`)
 
       setSearchQuery('')
-      await fetchPlans()
+      await refreshPlans()
     } catch (error) {
       console.error('Error adding exercise:', error)
       toast.error('Failed to add exercise to plan')
@@ -373,7 +301,7 @@ const sensors = useSensors(
 
       if (error) throw error
       toast.success('Exercise removed')
-      await fetchPlans()
+      await refreshPlans()
     } catch (error) {
       console.error('Error removing exercise:', error)
       toast.error('Failed to remove exercise')
@@ -389,7 +317,7 @@ const sensors = useSensors(
 
       if (error) throw error
       toast.success('Exercise hidden')
-      await fetchPlans()
+      await refreshPlans()
     } catch (error) {
       console.error('Error hiding exercise:', error)
       toast.error('Failed to hide exercise')
@@ -405,7 +333,7 @@ const sensors = useSensors(
 
       if (error) throw error
       toast.success('Exercise restored')
-      await fetchPlans()
+      await refreshPlans()
     } catch (error) {
       console.error('Error unhiding exercise:', error)
       toast.error('Failed to unhide exercise')
@@ -427,9 +355,6 @@ const sensors = useSensors(
 
     const newExercises = arrayMove(plan.exercises, oldIndex, newIndex)
 
-    // Optimistically update UI
-    setPlans(plans.map(p => p.id === planId ? { ...p, exercises: newExercises } : p))
-
     // Update in database
     try {
       const updates = newExercises.map((ex, idx) => ({
@@ -443,14 +368,15 @@ const sensors = useSensors(
           .update({ order_index: update.order_index })
           .eq('id', update.id)
       }
+      await refreshPlans()
     } catch (error) {
       console.error('Error updating order:', error)
       toast.error('Failed to reorder exercises')
-      await fetchPlans()
+      await refreshPlans()
     }
   }
 
-  if (isLoading) {
+  if (plansLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50 text-2xl md:text-3xl font-semibold text-gray-700">
         <span role="img" aria-label="dumbbells" className="mr-3">💪</span>

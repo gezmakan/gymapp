@@ -161,7 +161,12 @@ export default function ExercisesPage() {
   }
 
   if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 text-2xl md:text-3xl font-semibold text-gray-700">
+        <span role="img" aria-label="jump rope" className="mr-3">🤸‍♂️</span>
+        Warming up exercises...
+      </div>
+    )
   }
 
   return (

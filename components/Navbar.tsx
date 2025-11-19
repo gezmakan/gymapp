@@ -4,40 +4,21 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-
-type WorkoutPlan = {
-  id: string
-  name: string
-}
+import { usePlansStore } from '@/hooks/usePlansStore'
 
 export default function Navbar() {
-  const [plans, setPlans] = useState<WorkoutPlan[]>([])
+  const { plans } = usePlansStore()
   const [user, setUser] = useState<any>(null)
   const pathname = usePathname()
   const supabase = createClient()
 
   useEffect(() => {
-    fetchPlans()
     checkUser()
   }, [])
 
   const checkUser = async () => {
     const { data } = await supabase.auth.getUser()
     setUser(data.user)
-  }
-
-  const fetchPlans = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('workout_plans')
-        .select('id, name')
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-      setPlans(data || [])
-    } catch (error) {
-      console.error('Error fetching plans:', error)
-    }
   }
 
   return (
