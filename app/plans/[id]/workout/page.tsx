@@ -29,6 +29,7 @@ type WorkoutSession = {
 
 type SessionSet = {
   id: string
+  workout_session_id?: string
   exercise_id: string
   set_number: number
   reps: number | null
@@ -254,12 +255,11 @@ export default function WorkoutPage() {
   ) => {
     try {
       const sets = sessionSets[sessionId] || []
-      const setToUpdate = sets.find(
+      const setIndex = sets.findIndex(
         s => s.exercise_id === exerciseId && s.set_number === setNumber
       )
 
-      if (!setToUpdate) {
-        // Create the missing set row on the fly so the cell becomes editable
+      if (setIndex === -1) {
         const { data: insertedSet, error: insertError } = await supabase
           .from('workout_session_sets')
           .insert({
@@ -276,24 +276,27 @@ export default function WorkoutPage() {
 
         setSessionSets(prev => ({
           ...prev,
-          [sessionId]: [...sets, insertedSet],
+          [sessionId]: [...(prev[sessionId] || []), insertedSet],
         }))
+
         return
       }
+
+      const targetSet = sets[setIndex]
+
+      setSessionSets(prev => ({
+        ...prev,
+        [sessionId]: (prev[sessionId] || []).map((s, idx) =>
+          idx === setIndex ? { ...s, [field]: value } : s
+        ),
+      }))
 
       const { error } = await supabase
         .from('workout_session_sets')
         .update({ [field]: value })
-        .eq('id', setToUpdate.id)
+        .eq('id', targetSet.id)
 
       if (error) throw error
-
-      setSessionSets(prev => ({
-        ...prev,
-        [sessionId]: sets.map(s =>
-          s.id === setToUpdate.id ? { ...s, [field]: value } : s
-        ),
-      }))
     } catch (error) {
       console.error('Error updating set:', error)
       toast.error('Failed to update set')
