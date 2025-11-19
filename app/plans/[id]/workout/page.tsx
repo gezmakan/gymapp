@@ -83,6 +83,9 @@ export default function WorkoutPage() {
   const hasAutoCreatedRef = useRef(false)
 
   const headerVariant = HEADER_VARIANTS[planIndex % HEADER_VARIANTS.length]
+  const dateColumnWidth = 120
+  const exerciseColumnWidth = 220
+  const gridMinWidth = Math.max(600, dateColumnWidth + exercises.length * exerciseColumnWidth)
 
   useEffect(() => {
     fetchWorkoutData()
@@ -416,153 +419,156 @@ export default function WorkoutPage() {
       <Navbar />
       <div className="flex-1 md:p-8">
         <div className="max-w-full mx-auto">
-          <div
-            className={`relative flex items-center justify-between mb-6 sticky top-14 md:static z-40 md:z-auto py-4 px-6 rounded-2xl border border-white/60 shadow-md bg-gradient-to-r ${headerVariant.gradient} ${headerVariant.text}`}
-          >
-            <div
-              className={`absolute inset-0 bg-gradient-to-br ${headerVariant.accent} opacity-70 pointer-events-none`}
-              aria-hidden="true"
-            />
-            <div className="relative z-10 flex items-center justify-between w-full">
-              <h1 className="text-2xl md:text-3xl font-bold drop-shadow-sm">{planName}</h1>
-              <Button onClick={handleStartNewWorkout} disabled={isCreatingSession} size="sm" className="shadow">
-                {isCreatingSession ? 'Adding...' : 'Add Workout Day'}
-              </Button>
-            </div>
-          </div>
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse bg-white">
-              <thead>
-                <tr>
-                  <th className="p-2 min-w-[80px] sticky left-0 z-10 bg-transparent">
-                    <div className="text-sm font-semibold">Date</div>
-                  </th>
-                  {exercises.map((exercise, exerciseIdx) => (
-                    <th
-                      key={exercise.id}
-                      className={`p-2 min-w-[200px] max-w-[200px] border-l-8 border-white ${
-                        exerciseIdx % 2 === 0 ? 'bg-gray-100' : 'bg-gray-200'
-                      }`}
-                    >
-                      <div
-                        className={`font-semibold text-sm md:text-lg ${exercise.video_url ? 'cursor-pointer hover:text-orange-600 transition-colors' : ''}`}
-                        onClick={() => {
-                          console.log('Clicked:', exercise.name, 'URL:', exercise.video_url)
-                          if (exercise.video_url) {
-                            setSelectedVideo({ url: exercise.video_url, title: exercise.name })
-                          }
-                        }}
-                      >
-                        {exercise.name}
-                      </div>
-                      <div className="text-sm font-normal mt-1">{exercise.sets} x {exercise.reps}</div>
-                      <div className="grid grid-cols-4 gap-0 mt-1">
-                        {Array.from({ length: 4 }).map((_, setIdx) => (
-                          <div key={setIdx} className="text-xs text-gray-500 text-center">
-                            Set {setIdx + 1}
-                          </div>
-                        ))}
-                      </div>
+            <div style={{ minWidth: `${gridMinWidth}px` }}>
+              <div
+                className={`relative flex items-center justify-between mb-6 sticky top-14 md:static z-40 md:z-auto py-4 px-6 rounded-2xl border border-white/60 shadow-md bg-gradient-to-r ${headerVariant.gradient} ${headerVariant.text}`}
+                style={{ minWidth: `${gridMinWidth}px` }}
+              >
+                <div
+                  className={`absolute inset-0 bg-gradient-to-br ${headerVariant.accent} opacity-70 pointer-events-none`}
+                  aria-hidden="true"
+                />
+                <div className="relative z-10 flex items-center justify-between w-full">
+              <h1 className="text-xl md:text-2xl font-bold drop-shadow-sm">{planName}</h1>
+                  <Button onClick={handleStartNewWorkout} disabled={isCreatingSession} size="sm" className="shadow">
+                    {isCreatingSession ? 'Adding...' : '+ Add Day'}
+                  </Button>
+                </div>
+              </div>
+              <table className="w-full border-collapse bg-white" style={{ minWidth: `${gridMinWidth}px` }}>
+                <thead>
+                  <tr>
+                    <th className="p-2 min-w-[80px] sticky left-0 z-10 bg-transparent">
+                      <div className="text-sm font-semibold">Date</div>
                     </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {sessions.map((session, sessionIdx) => {
-                  const sets = sessionSets[session.id] || []
-                  const isCurrentSession = session.id === currentSessionId
+                    {exercises.map((exercise, exerciseIdx) => (
+                      <th
+                        key={exercise.id}
+                        className={`p-2 min-w-[200px] max-w-[200px] border-l-8 border-white ${
+                          exerciseIdx % 2 === 0 ? 'bg-gray-100' : 'bg-gray-200'
+                        }`}
+                      >
+                        <div
+                          className={`font-semibold text-sm md:text-lg ${exercise.video_url ? 'cursor-pointer hover:text-orange-600 transition-colors' : ''}`}
+                          onClick={() => {
+                            console.log('Clicked:', exercise.name, 'URL:', exercise.video_url)
+                            if (exercise.video_url) {
+                              setSelectedVideo({ url: exercise.video_url, title: exercise.name })
+                            }
+                          }}
+                        >
+                          {exercise.name}
+                        </div>
+                        <div className="text-sm font-normal mt-1">{exercise.sets} x {exercise.reps}</div>
+                        <div className="grid grid-cols-4 gap-0 mt-1">
+                          {Array.from({ length: 4 }).map((_, setIdx) => (
+                            <div key={setIdx} className="text-xs text-gray-500 text-center">
+                              Set {setIdx + 1}
+                            </div>
+                          ))}
+                        </div>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {sessions.map((session, sessionIdx) => {
+                    const sets = sessionSets[session.id] || []
+                    const isCurrentSession = session.id === currentSessionId
 
-                  return (
-                    <tr key={session.id} className="bg-white">
-                      <td className="p-2 sticky left-0 z-10 bg-transparent">
-                        <div className="font-bold text-center">{session.session_number}</div>
-                        {editingDateSessionId === session.id ? (
-                          <Input
-                            type="date"
-                            defaultValue={new Date(session.session_date).toISOString().split('T')[0]}
-                            onBlur={(e) => {
-                              if (e.target.value) {
-                                updateSessionDate(session.id, e.target.value)
-                              } else {
-                                setEditingDateSessionId(null)
-                              }
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter' && e.currentTarget.value) {
-                                updateSessionDate(session.id, e.currentTarget.value)
-                              }
-                              if (e.key === 'Escape') {
-                                setEditingDateSessionId(null)
-                              }
-                            }}
-                            className="text-xs text-center mt-1 h-6"
-                            autoFocus
-                          />
-                        ) : (
-                          <div
-                            className="text-xs text-gray-500 text-center mt-1 cursor-pointer hover:text-gray-700"
-                            onClick={() => setEditingDateSessionId(session.id)}
-                          >
-                            {(() => {
-                              const date = new Date(session.session_date)
-                              const day = date.getDate()
-                              const month = date.toLocaleDateString('en-US', { month: 'short' })
-                              const year = date.getFullYear().toString().slice(-2)
-                              return `${day} ${month} ${year}`
-                            })()}
-                          </div>
-                        )}
-                      </td>
-                      {exercises.map((exercise, exerciseIdx) => (
-                        <td key={exercise.id} className={`p-2 ${exerciseIdx > 0 ? 'border-l-8 border-white' : ''}`}>
-                          <div className="grid grid-cols-4 gap-0">
-                            {Array.from({ length: 4 }).map((_, setIdx) => {
-                              const setNumber = setIdx + 1
-                              const setData = sets.find(
-                                s => s.exercise_id === exercise.id && s.set_number === setNumber
-                              )
-
-                              return (
-                                <div key={setNumber} className="text-center border border-gray-200 rounded-none">
-                                  <input
-                                    type="number"
-                                    min="0"
-                                    value={setData?.reps ?? ''}
-                                    onChange={(e) => {
-                                      const val = e.target.value === '' ? null : parseInt(e.target.value)
-                                      if (val === null || val >= 0) {
-                                        updateSetValue(session.id, exercise.id, setNumber, 'reps', val)
-                                      }
-                                    }}
-                                    placeholder="R"
-                                    className="h-8 w-full text-center border-0 outline-none focus:outline-none placeholder-gray-300"
-                                  />
-                                  <div className="border-t border-gray-200"></div>
-                                  <input
-                                    type="number"
-                                    step="0.5"
-                                    min="0"
-                                    value={setData?.weight ?? ''}
-                                    onChange={(e) => {
-                                      const val = e.target.value === '' ? null : parseFloat(e.target.value)
-                                      if (val === null || val >= 0) {
-                                        updateSetValue(session.id, exercise.id, setNumber, 'weight', val)
-                                      }
-                                    }}
-                                    placeholder="W"
-                                    className="h-8 w-full text-center border-0 outline-none focus:outline-none placeholder-gray-300"
-                                  />
-                                </div>
-                              )
-                            })}
-                          </div>
+                    return (
+                      <tr key={session.id} className="bg-white">
+                        <td className="p-2 sticky left-0 z-10 bg-transparent">
+                          <div className="font-bold text-center">{session.session_number}</div>
+                          {editingDateSessionId === session.id ? (
+                            <Input
+                              type="date"
+                              defaultValue={new Date(session.session_date).toISOString().split('T')[0]}
+                              onBlur={(e) => {
+                                if (e.target.value) {
+                                  updateSessionDate(session.id, e.target.value)
+                                } else {
+                                  setEditingDateSessionId(null)
+                                }
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' && e.currentTarget.value) {
+                                  updateSessionDate(session.id, e.currentTarget.value)
+                                }
+                                if (e.key === 'Escape') {
+                                  setEditingDateSessionId(null)
+                                }
+                              }}
+                              className="text-xs text-center mt-1 h-6"
+                              autoFocus
+                            />
+                          ) : (
+                            <div
+                              className="text-xs text-gray-500 text-center mt-1 cursor-pointer hover:text-gray-700"
+                              onClick={() => setEditingDateSessionId(session.id)}
+                            >
+                              {(() => {
+                                const date = new Date(session.session_date)
+                                const day = date.getDate()
+                                const month = date.toLocaleDateString('en-US', { month: 'short' })
+                                const year = date.getFullYear().toString().slice(-2)
+                                return `${day} ${month} ${year}`
+                              })()}
+                            </div>
+                          )}
                         </td>
-                      ))}
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+                        {exercises.map((exercise, exerciseIdx) => (
+                          <td key={exercise.id} className={`p-2 ${exerciseIdx > 0 ? 'border-l-8 border-white' : ''}`}>
+                            <div className="grid grid-cols-4 gap-0">
+                              {Array.from({ length: 4 }).map((_, setIdx) => {
+                                const setNumber = setIdx + 1
+                                const setData = sets.find(
+                                  s => s.exercise_id === exercise.id && s.set_number === setNumber
+                                )
+
+                                return (
+                                  <div key={setNumber} className="text-center border border-gray-200 rounded-none">
+                                    <input
+                                      type="number"
+                                      min="0"
+                                      value={setData?.reps ?? ''}
+                                      onChange={(e) => {
+                                        const val = e.target.value === '' ? null : parseInt(e.target.value)
+                                        if (val === null || val >= 0) {
+                                          updateSetValue(session.id, exercise.id, setNumber, 'reps', val)
+                                        }
+                                      }}
+                                      placeholder="R"
+                                      className="h-8 w-full text-center border-0 outline-none focus:outline-none placeholder-gray-300"
+                                    />
+                                    <div className="border-t border-gray-200"></div>
+                                    <input
+                                      type="number"
+                                      step="0.5"
+                                      min="0"
+                                      value={setData?.weight ?? ''}
+                                      onChange={(e) => {
+                                        const val = e.target.value === '' ? null : parseFloat(e.target.value)
+                                        if (val === null || val >= 0) {
+                                          updateSetValue(session.id, exercise.id, setNumber, 'weight', val)
+                                        }
+                                      }}
+                                      placeholder="W"
+                                      className="h-8 w-full text-center border-0 outline-none focus:outline-none placeholder-gray-300"
+                                    />
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          </td>
+                        ))}
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
