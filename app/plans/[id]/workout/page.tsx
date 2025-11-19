@@ -120,6 +120,7 @@ export default function WorkoutPage() {
         .from('workout_plan_exercises')
         .select('exercise_id, order_index, exercises (id, name, sets, reps, muscle_groups, video_url)')
         .eq('workout_plan_id', planId)
+        .eq('is_hidden', false)
         .order('order_index')
 
       if (exercisesError) throw exercisesError

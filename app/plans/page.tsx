@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Plus, ArrowLeft, Trash2, Dumbbell, GripVertical, Search } from 'lucide-react'
+import { Plus, ArrowLeft, Trash2, Dumbbell, GripVertical, Search, EyeOff } from 'lucide-react'
 import {
   Card,
   CardContent,
@@ -63,6 +63,7 @@ type Exercise = {
 type PlanExercise = Exercise & {
   plan_exercise_id: string
   order_index: number
+  is_hidden: boolean
 }
 
 type WorkoutPlan = {
@@ -71,16 +72,17 @@ type WorkoutPlan = {
   name: string
   created_at: string
   exercises: PlanExercise[]
+  hiddenExercises: PlanExercise[]
 }
 
 // Sortable Row Component
 function SortableExerciseRow({
   exercise,
-  onRemove,
+  onHide,
   onVideoClick
 }: {
   exercise: PlanExercise
-  onRemove: () => void
+  onHide: () => void
   onVideoClick: () => void
 }) {
   const {
@@ -125,10 +127,11 @@ function SortableExerciseRow({
         <Button
           variant="ghost"
           size="sm"
-          onClick={onRemove}
+          onClick={onHide}
           className="h-7 w-7 p-0"
+          title="Hide exercise"
         >
-          <Trash2 className="h-3 w-3 text-red-600" />
+          <EyeOff className="h-3 w-3 text-gray-500" />
         </Button>
       </TableCell>
     </TableRow>
@@ -140,6 +143,7 @@ export default function PlansPage() {
   const [allExercises, setAllExercises] = useState<Exercise[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [selectedPlanForAdd, setSelectedPlanForAdd] = useState<string | null>(null)
+  const [hiddenDialogPlanId, setHiddenDialogPlanId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedVideo, setSelectedVideo] = useState<{ url: string; title: string } | null>(null)
   const [editingPlanId, setEditingPlanId] = useState<string | null>(null)
@@ -190,6 +194,7 @@ export default function PlansPage() {
             .select(`
               id,
               order_index,
+              is_hidden,
               exercises (*)
             `)
             .eq('workout_plan_id', plan.id)
@@ -201,11 +206,13 @@ export default function PlansPage() {
             ...item.exercises,
             plan_exercise_id: item.id,
             order_index: item.order_index,
+            is_hidden: item.is_hidden,
           }))
 
           return {
             ...plan,
-            exercises,
+            exercises: exercises.filter(ex => !ex.is_hidden),
+            hiddenExercises: exercises.filter(ex => ex.is_hidden),
           }
         })
       )
@@ -290,7 +297,7 @@ export default function PlansPage() {
       if (!plan) return
 
       // Check if exercise already exists in the plan
-      const alreadyExists = plan.exercises.some(pe => pe.id === exerciseId)
+      const alreadyExists = plan.exercises.some(pe => pe.id === exerciseId) || plan.hiddenExercises.some(pe => pe.id === exerciseId)
       if (alreadyExists) {
         toast.error('This exercise is already in this plan')
         return
@@ -337,6 +344,38 @@ export default function PlansPage() {
     }
   }
 
+  const handleHideExercise = async (planId: string, planExerciseId: string) => {
+    try {
+      const { error } = await supabase
+        .from('workout_plan_exercises')
+        .update({ is_hidden: true })
+        .eq('id', planExerciseId)
+
+      if (error) throw error
+      toast.success('Exercise hidden')
+      await fetchPlans()
+    } catch (error) {
+      console.error('Error hiding exercise:', error)
+      toast.error('Failed to hide exercise')
+    }
+  }
+
+  const handleUnhideExercise = async (planId: string, planExerciseId: string) => {
+    try {
+      const { error } = await supabase
+        .from('workout_plan_exercises')
+        .update({ is_hidden: false })
+        .eq('id', planExerciseId)
+
+      if (error) throw error
+      toast.success('Exercise restored')
+      await fetchPlans()
+    } catch (error) {
+      console.error('Error unhiding exercise:', error)
+      toast.error('Failed to unhide exercise')
+    }
+  }
+
   const handleDragEnd = async (planId: string, event: DragEndEvent) => {
     const { active, over } = event
 
@@ -380,6 +419,7 @@ export default function PlansPage() {
   }
 
   const canAddMore = plans.length < MAX_PLANS
+  const hiddenPlan = hiddenDialogPlanId ? plans.find(p => p.id === hiddenDialogPlanId) : null
 
   const filteredExercises = allExercises.filter(ex =>
     ex.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -391,7 +431,7 @@ export default function PlansPage() {
     if (!plan) return filteredExercises
 
     return filteredExercises.filter(
-      ex => !plan.exercises.some(pe => pe.id === ex.id)
+      ex => !plan.exercises.some(pe => pe.id === ex.id) && !plan.hiddenExercises.some(pe => pe.id === ex.id)
     )
   }
 
@@ -541,7 +581,7 @@ export default function PlansPage() {
                                 <SortableExerciseRow
                                   key={exercise.plan_exercise_id}
                                   exercise={exercise}
-                                  onRemove={() => handleRemoveExercise(plan.id, exercise.plan_exercise_id)}
+                                  onHide={() => handleHideExercise(plan.id, exercise.plan_exercise_id)}
                                   onVideoClick={() => setSelectedVideo({ url: exercise.video_url!, title: exercise.name })}
                                 />
                               ))}
@@ -557,6 +597,15 @@ export default function PlansPage() {
                         >
                           <Plus className="h-4 w-4 mr-2" /> Add Exercise
                         </Button>
+                        {plan.hiddenExercises.length > 0 && (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => setHiddenDialogPlanId(plan.id)}
+                          >
+                            Hidden ({plan.hiddenExercises.length})
+                          </Button>
+                        )}
                         <Button
                           variant="outline"
                           size="sm"
@@ -578,8 +627,8 @@ export default function PlansPage() {
 
       <Footer />
 
-      {/* Add Exercise Dialog */}
-      <Dialog open={!!selectedPlanForAdd} onOpenChange={(open) => !open && setSelectedPlanForAdd(null)}>
+  {/* Add Exercise Dialog */}
+  <Dialog open={!!selectedPlanForAdd} onOpenChange={(open) => !open && setSelectedPlanForAdd(null)}>
         <DialogContent className="sm:!max-w-[800px] w-[95vw] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add Exercise to Plan</DialogTitle>
@@ -634,6 +683,49 @@ export default function PlansPage() {
               </Table>
             </div>
           </div>
+        </DialogContent>
+  </Dialog>
+
+      {/* Hidden Exercises Dialog */}
+      <Dialog open={!!hiddenDialogPlanId} onOpenChange={(open) => !open && setHiddenDialogPlanId(null)}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Hidden Exercises</DialogTitle>
+          </DialogHeader>
+          {hiddenPlan && hiddenPlan.hiddenExercises.length > 0 ? (
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {hiddenPlan.hiddenExercises.map((exercise) => (
+                <div key={exercise.plan_exercise_id} className="flex items-center justify-between border rounded-lg p-3 bg-gray-50">
+                  <div>
+                    <p className="font-semibold">{exercise.name}</p>
+                    <p className="text-sm text-gray-600">{exercise.sets} x {exercise.reps} • {exercise.muscle_groups || '—'}</p>
+                  </div>
+                  <div className="flex gap-2 flex-wrap justify-end">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        handleUnhideExercise(hiddenPlan.id, exercise.plan_exercise_id)
+                        setHiddenDialogPlanId(hiddenPlan.id)
+                      }}
+                    >
+                      Unhide
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleRemoveExercise(hiddenPlan.id, exercise.plan_exercise_id)}
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-600">No hidden exercises.</p>
+          )}
         </DialogContent>
       </Dialog>
 

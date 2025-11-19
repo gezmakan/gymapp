@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter, useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { ArrowLeft, Plus, Trash2, GripVertical, Search, Check, Loader2 } from 'lucide-react'
+import { ArrowLeft, Plus, Trash2, GripVertical, Search, Check, Loader2, EyeOff } from 'lucide-react'
 import {
   Table,
   TableBody,
@@ -56,6 +56,7 @@ type Exercise = {
 type PlanExercise = Exercise & {
   plan_exercise_id: string
   order_index: number
+  is_hidden: boolean
 }
 
 type WorkoutPlan = {
@@ -67,11 +68,11 @@ type WorkoutPlan = {
 // Sortable Row Component
 function SortableExerciseRow({
   exercise,
-  onRemove,
+  onHide,
   onVideoClick
 }: {
   exercise: PlanExercise
-  onRemove: () => void
+  onHide: () => void
   onVideoClick: () => void
 }) {
   const {
@@ -125,9 +126,10 @@ function SortableExerciseRow({
         <Button
           variant="ghost"
           size="sm"
-          onClick={onRemove}
+          onClick={onHide}
+          title="Hide exercise"
         >
-          <Trash2 className="h-4 w-4 text-red-600" />
+          <EyeOff className="h-4 w-4 text-gray-500" />
         </Button>
       </TableCell>
     </TableRow>
@@ -138,6 +140,7 @@ export default function PlanDetailPage() {
   const params = useParams()
   const [plan, setPlan] = useState<WorkoutPlan | null>(null)
   const [planExercises, setPlanExercises] = useState<PlanExercise[]>([])
+  const [hiddenExercises, setHiddenExercises] = useState<PlanExercise[]>([])
   const [allExercises, setAllExercises] = useState<Exercise[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [showAddDialog, setShowAddDialog] = useState(false)
@@ -145,6 +148,7 @@ export default function PlanDetailPage() {
   const [selectedVideo, setSelectedVideo] = useState<{ url: string; title: string } | null>(null)
   const [addingExerciseId, setAddingExerciseId] = useState<string | null>(null)
   const [addedExerciseIds, setAddedExerciseIds] = useState<Set<string>>(new Set())
+  const [showHiddenDialog, setShowHiddenDialog] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
@@ -187,6 +191,7 @@ export default function PlanDetailPage() {
         .select(`
           id,
           order_index,
+          is_hidden,
           exercises (*)
         `)
         .eq('workout_plan_id', params.id)
@@ -198,9 +203,11 @@ export default function PlanDetailPage() {
         ...item.exercises,
         plan_exercise_id: item.id,
         order_index: item.order_index,
+        is_hidden: item.is_hidden,
       }))
 
-      setPlanExercises(exercises)
+      setPlanExercises(exercises.filter(ex => !ex.is_hidden))
+      setHiddenExercises(exercises.filter(ex => ex.is_hidden))
     } catch (error) {
       console.error('Error fetching plan exercises:', error)
     } finally {
@@ -232,7 +239,7 @@ export default function PlanDetailPage() {
       setAddingExerciseId(exerciseId)
 
       // Check if exercise already exists in the plan
-      const alreadyExists = planExercises.some(pe => pe.id === exerciseId)
+      const alreadyExists = planExercises.some(pe => pe.id === exerciseId) || hiddenExercises.some(pe => pe.id === exerciseId)
       if (alreadyExists) {
         toast.error('This exercise is already in your plan')
         setAddingExerciseId(null)
@@ -317,6 +324,38 @@ export default function PlanDetailPage() {
     }
   }
 
+  const handleHideExercise = async (planExerciseId: string) => {
+    try {
+      const { error } = await supabase
+        .from('workout_plan_exercises')
+        .update({ is_hidden: true })
+        .eq('id', planExerciseId)
+
+      if (error) throw error
+      await fetchPlanExercises()
+      toast.success('Exercise hidden')
+    } catch (error) {
+      console.error('Error hiding exercise:', error)
+      toast.error('Failed to hide exercise')
+    }
+  }
+
+  const handleUnhideExercise = async (planExerciseId: string) => {
+    try {
+      const { error } = await supabase
+        .from('workout_plan_exercises')
+        .update({ is_hidden: false })
+        .eq('id', planExerciseId)
+
+      if (error) throw error
+      await fetchPlanExercises()
+      toast.success('Exercise restored')
+    } catch (error) {
+      console.error('Error unhiding exercise:', error)
+      toast.error('Failed to unhide exercise')
+    }
+  }
+
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event
 
@@ -369,14 +408,14 @@ export default function PlanDetailPage() {
     <div className="min-h-screen bg-gray-50 md:p-8">
       <div className="max-w-7xl mx-auto md:px-16">
         <div className="mb-4 md:mb-8 p-4 md:p-0">
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex justify-between items-center mb-4 flex-wrap gap-3">
             <div>
               <h1 className="text-2xl md:text-3xl font-bold">{plan?.name}</h1>
               <p className="text-gray-600 text-sm md:text-base">
                 {planExercises.length} exercises
               </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <Button
                 onClick={() => setShowAddDialog(true)}
                 size="sm"
@@ -394,6 +433,16 @@ export default function PlanDetailPage() {
                 <ArrowLeft className="h-4 w-4 md:mr-2" />
                 <span className="hidden md:inline">Back</span>
               </Button>
+              {hiddenExercises.length > 0 && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="md:h-10"
+                  onClick={() => setShowHiddenDialog(true)}
+                >
+                  Hidden ({hiddenExercises.length})
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -433,7 +482,7 @@ export default function PlanDetailPage() {
                       <SortableExerciseRow
                         key={exercise.plan_exercise_id}
                         exercise={exercise}
-                        onRemove={() => handleRemoveExercise(exercise.plan_exercise_id)}
+                        onHide={() => handleHideExercise(exercise.plan_exercise_id)}
                         onVideoClick={() => setSelectedVideo({ url: exercise.video_url!, title: exercise.name })}
                       />
                     ))}
@@ -488,7 +537,7 @@ export default function PlanDetailPage() {
                   ) : (
                     availableExercises.map((exercise) => {
                       const isAdding = addingExerciseId === exercise.id
-                      const isAlreadyInPlan = planExercises.some(pe => pe.id === exercise.id)
+                      const isAlreadyInPlan = planExercises.some(pe => pe.id === exercise.id) || hiddenExercises.some(pe => pe.id === exercise.id)
                       const isAdded = addedExerciseIds.has(exercise.id) || isAlreadyInPlan
 
                       return (
@@ -517,6 +566,46 @@ export default function PlanDetailPage() {
               </Table>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Hidden Exercises Dialog */}
+      <Dialog open={showHiddenDialog} onOpenChange={setShowHiddenDialog}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Hidden Exercises</DialogTitle>
+          </DialogHeader>
+          {hiddenExercises.length === 0 ? (
+            <p className="text-sm text-gray-600">No hidden exercises.</p>
+          ) : (
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {hiddenExercises.map((exercise) => (
+                <div key={exercise.plan_exercise_id} className="flex items-center justify-between border rounded-lg p-3 bg-gray-50">
+                  <div>
+                    <p className="font-semibold">{exercise.name}</p>
+                    <p className="text-sm text-gray-600">{exercise.sets} x {exercise.reps} • {exercise.muscle_groups || '—'}</p>
+                  </div>
+                  <div className="flex gap-2 flex-wrap justify-end">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleUnhideExercise(exercise.plan_exercise_id)}
+                    >
+                      Unhide
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleRemoveExercise(exercise.plan_exercise_id)}
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 
