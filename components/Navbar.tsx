@@ -15,7 +15,6 @@ export default function Navbar() {
   const [user, setUser] = useState<any>(null)
   const pathname = usePathname()
   const supabase = createClient()
-  const showPlannerPills = pathname.startsWith('/plans/') && pathname.includes('/workout')
 
   useEffect(() => {
     fetchPlans()
@@ -45,10 +44,13 @@ export default function Navbar() {
     <nav className="bg-white border-b sticky top-0 md:static z-50 md:z-auto">
       <div className="max-w-4xl mx-auto px-4">
         <div className="flex items-center gap-3 h-14 flex-nowrap overflow-x-auto">
-          <div className="flex items-center gap-1 md:gap-2 font-semibold text-gray-800 text-sm md:text-lg select-none shrink-0">
+          <Link
+            href="/plans"
+            className="flex items-center gap-1 md:gap-2 font-semibold text-gray-800 text-sm md:text-lg shrink-0"
+          >
             <span role="img" aria-label="weight lifter" className="text-base md:text-xl">🏋️</span>
             <span>SLMFIT</span>
-          </div>
+          </Link>
 
           <div className="flex items-center gap-2 overflow-x-auto flex-1 min-w-0 flex-nowrap justify-start md:justify-end">
             {user && !pathname.startsWith('/plans') && (
@@ -85,14 +87,6 @@ export default function Navbar() {
                 </Link>
               )
             })}
-            {showPlannerPills && (
-              <Link
-                href="/plans"
-                className="text-sm font-medium whitespace-nowrap px-4 py-1.5 rounded-full transition-colors bg-gray-200 text-gray-800 hover:bg-gray-300 shrink-0"
-              >
-                Planner
-              </Link>
-            )}
             {!user && (
               <>
                 <Link
