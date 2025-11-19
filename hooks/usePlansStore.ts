@@ -133,9 +133,10 @@ export function usePlansStore() {
   const supabase = supabaseRef.current!
 
   useEffect(() => {
+    fetchPlans(supabase)
+
     if (!initialized) {
       initialized = true
-      fetchPlans(supabase)
       channel = supabase
         .channel('plans-updates')
         .on(

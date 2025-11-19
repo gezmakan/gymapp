@@ -448,6 +448,7 @@ const sensors = useSensors(
             {plans.map((plan, index) => {
               const colors = ['bg-blue-100', 'bg-green-100', 'bg-purple-100', 'bg-pink-100', 'bg-yellow-100']
               const bgColor = colors[index % colors.length]
+              const isPlanEditing = editingPlanMode === plan.id || plan.exercises.length === 0
 
               return (
               <Card key={plan.id} className="border-0 md:border shadow-sm !py-0 !pb-4 !rounded-none md:!rounded-lg">
@@ -486,9 +487,9 @@ const sensors = useSensors(
                         size="sm"
                         onClick={() => setEditingPlanMode(prev => (prev === plan.id ? null : plan.id))}
                       >
-                        {editingPlanMode === plan.id ? 'Done' : 'Edit'}
+                        {isPlanEditing ? 'Done' : 'Edit'}
                       </Button>
-                      {editingPlanMode === plan.id && (
+                      {isPlanEditing && (
                         <Button
                           variant="ghost"
                           size="sm"
@@ -506,13 +507,15 @@ const sensors = useSensors(
                     <div className="py-6 border-2 border-dashed rounded-lg">
                       <p className="text-center text-gray-500 text-sm mb-3">No exercises yet</p>
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setSelectedPlanForAdd(plan.id)}
-                        >
-                          <Plus className="h-4 w-4 mr-2" /> Add Exercise
-                        </Button>
+                        {isPlanEditing && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSelectedPlanForAdd(plan.id)}
+                          >
+                            <Plus className="h-4 w-4 mr-2" /> Add Exercise
+                          </Button>
+                        )}
                         <Button
                           variant="outline"
                           size="sm"
@@ -539,24 +542,24 @@ const sensors = useSensors(
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            <SortableContext
-                              items={plan.exercises.map(ex => ex.plan_exercise_id)}
-                              strategy={verticalListSortingStrategy}
-                            >
-                              {plan.exercises.map((exercise) => (
+                          <SortableContext
+                            items={plan.exercises.map(ex => ex.plan_exercise_id)}
+                            strategy={verticalListSortingStrategy}
+                          >
+                            {plan.exercises.map((exercise) => (
                             <SortableExerciseRow
                               key={exercise.plan_exercise_id}
                               exercise={exercise}
                               onHide={() => handleHideExercise(plan.id, exercise.plan_exercise_id)}
                               onVideoClick={() => setSelectedVideo({ url: exercise.video_url!, title: exercise.name })}
-                              isEditing={editingPlanMode === plan.id}
+                              isEditing={isPlanEditing}
                             />
                             ))}
                           </SortableContext>
                         </TableBody>
                       </Table>
                     </DndContext>
-                    {editingPlanMode === plan.id && plan.hiddenExercises.length > 0 && (
+                    {isPlanEditing && plan.hiddenExercises.length > 0 && (
                       <div className="mt-4">
                         <p className="text-sm font-semibold text-gray-500 mb-2">Hidden Exercises</p>
                         <Table>
@@ -577,13 +580,15 @@ const sensors = useSensors(
                       </div>
                     )}
                       <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setSelectedPlanForAdd(plan.id)}
-                        >
-                          <Plus className="h-4 w-4 mr-2" /> Add Exercise
-                        </Button>
+                        {isPlanEditing && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSelectedPlanForAdd(plan.id)}
+                          >
+                            <Plus className="h-4 w-4 mr-2" /> Add Exercise
+                          </Button>
+                        )}
                         <Button
                           variant="outline"
                           size="sm"
