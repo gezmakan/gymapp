@@ -253,6 +253,37 @@ export default function PlanDetailPage() {
 
       if (error) throw error
 
+      // Ensure existing workout sessions get default set rows for the new exercise
+      const { data: existingSessions, error: sessionsError } = await supabase
+        .from('workout_sessions')
+        .select('id')
+        .eq('workout_plan_id', params.id)
+
+      if (sessionsError) throw sessionsError
+
+      if (existingSessions && existingSessions.length > 0) {
+        // Workout tracking grid expects 4 set rows per exercise (see WorkoutPage)
+        const totalSetsPerExercise = 4
+
+        const setsToInsert = existingSessions.flatMap((session: { id: string }) =>
+          Array.from({ length: totalSetsPerExercise }, (_, idx) => ({
+            workout_session_id: session.id,
+            exercise_id: exerciseId,
+            set_number: idx + 1,
+            reps: null,
+            weight: null,
+          }))
+        )
+
+        if (setsToInsert.length > 0) {
+          const { error: setsInsertError } = await supabase
+            .from('workout_session_sets')
+            .insert(setsToInsert)
+
+          if (setsInsertError) throw setsInsertError
+        }
+      }
+
       await fetchPlanExercises()
 
       // Mark as added

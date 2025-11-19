@@ -258,7 +258,28 @@ export default function WorkoutPage() {
         s => s.exercise_id === exerciseId && s.set_number === setNumber
       )
 
-      if (!setToUpdate) return
+      if (!setToUpdate) {
+        // Create the missing set row on the fly so the cell becomes editable
+        const { data: insertedSet, error: insertError } = await supabase
+          .from('workout_session_sets')
+          .insert({
+            workout_session_id: sessionId,
+            exercise_id: exerciseId,
+            set_number: setNumber,
+            reps: field === 'reps' ? value : null,
+            weight: field === 'weight' ? value : null,
+          })
+          .select()
+          .single()
+
+        if (insertError) throw insertError
+
+        setSessionSets(prev => ({
+          ...prev,
+          [sessionId]: [...sets, insertedSet],
+        }))
+        return
+      }
 
       const { error } = await supabase
         .from('workout_session_sets')
