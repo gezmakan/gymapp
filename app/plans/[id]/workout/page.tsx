@@ -401,21 +401,16 @@ export default function WorkoutPage() {
             <table className="w-full border-collapse bg-white">
               <thead>
                 <tr>
-                  <th className={`p-2 min-w-[80px] sticky left-0 z-10 ${
-                    (() => {
-                      const colors = ['bg-blue-100', 'bg-green-100', 'bg-purple-100', 'bg-pink-100', 'bg-yellow-100']
-                      return colors[planIndex % colors.length]
-                    })()
-                  }`}>
+                  <th className="p-2 min-w-[80px] sticky left-0 z-10 bg-gray-200">
                     <div className="text-sm font-semibold">Date</div>
                   </th>
                   {exercises.map((exercise, exerciseIdx) => (
-                    <th key={exercise.id} className={`p-2 min-w-[200px] max-w-[200px] border-l-8 border-white ${
-                      (() => {
-                        const colors = ['bg-blue-100', 'bg-green-100', 'bg-purple-100', 'bg-pink-100', 'bg-yellow-100']
-                        return colors[planIndex % colors.length]
-                      })()
-                    }`}>
+                    <th
+                      key={exercise.id}
+                      className={`p-2 min-w-[200px] max-w-[200px] border-l-8 border-white ${
+                        exerciseIdx % 2 === 0 ? 'bg-gray-100' : 'bg-gray-200'
+                      }`}
+                    >
                       <div
                         className={`font-semibold text-sm md:text-lg ${exercise.video_url ? 'cursor-pointer hover:text-orange-600 transition-colors' : ''}`}
                         onClick={() => {
