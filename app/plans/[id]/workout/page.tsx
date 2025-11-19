@@ -427,7 +427,7 @@ export default function WorkoutPage() {
           <div className="overflow-x-auto md:overflow-visible">
             <div className="md:w-full space-y-6" style={{ minWidth: `${gridMinWidth}px` }}>
               <div
-                className={`relative flex items-center justify-between mb-6 z-30 py-4 px-6 rounded-2xl border border-white/60 shadow-md bg-gradient-to-r ${headerVariant.gradient} ${headerVariant.text} ${
+                className={`relative flex items-center justify-between mb-6 z-30 py-4 px-6 rounded-2xl border border-white/60 shadow-md overflow-hidden bg-gradient-to-r ${headerVariant.gradient} ${headerVariant.text} ${
                   exercises.length > 3 ? 'md:sticky md:top-16' : 'md:static'
                 }`}
                 style={{ minWidth: `${gridMinWidth}px` }}
