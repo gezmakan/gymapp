@@ -9,6 +9,7 @@ import { usePlansStore } from '@/hooks/usePlansStore'
 export default function Navbar() {
   const { plans } = usePlansStore()
   const [user, setUser] = useState<any>(null)
+  const [userChecked, setUserChecked] = useState(false)
   const pathname = usePathname()
   const supabase = createClient()
 
@@ -19,6 +20,7 @@ export default function Navbar() {
   const checkUser = async () => {
     const { data } = await supabase.auth.getUser()
     setUser(data.user)
+    setUserChecked(true)
   }
 
   return (
@@ -34,7 +36,7 @@ export default function Navbar() {
           </Link>
 
           <div className="flex items-center gap-2 overflow-x-auto flex-1 min-w-0 flex-nowrap justify-start md:justify-end">
-            {user && !pathname.startsWith('/plans') && (
+            {userChecked && user && !pathname.startsWith('/plans') && (
               <Link
                 href="/plans"
                 className="text-sm font-medium whitespace-nowrap px-4 py-1.5 rounded-full transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200 md:mr-4"
@@ -68,7 +70,7 @@ export default function Navbar() {
                 </Link>
               )
             })}
-            {!user && (
+            {userChecked && !user && (
               <>
                 <Link
                   href="/signup"

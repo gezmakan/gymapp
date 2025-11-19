@@ -15,7 +15,7 @@ type Snapshot = StoreState
 
 const store: StoreState = {
   plans: null,
-  isLoading: false,
+  isLoading: true,
   error: null,
 }
 
