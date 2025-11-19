@@ -36,6 +36,34 @@ type SessionSet = {
   weight: number | null
 }
 
+const HEADER_VARIANTS = [
+  {
+    gradient: 'from-blue-100 via-blue-50 to-white',
+    text: 'text-blue-900',
+    accent: 'from-blue-300/40 via-transparent to-transparent',
+  },
+  {
+    gradient: 'from-green-100 via-green-50 to-white',
+    text: 'text-green-900',
+    accent: 'from-green-300/40 via-transparent to-transparent',
+  },
+  {
+    gradient: 'from-purple-100 via-purple-50 to-white',
+    text: 'text-purple-900',
+    accent: 'from-purple-300/40 via-transparent to-transparent',
+  },
+  {
+    gradient: 'from-pink-100 via-pink-50 to-white',
+    text: 'text-pink-900',
+    accent: 'from-pink-300/40 via-transparent to-transparent',
+  },
+  {
+    gradient: 'from-yellow-100 via-yellow-50 to-white',
+    text: 'text-yellow-900',
+    accent: 'from-yellow-300/40 via-transparent to-transparent',
+  },
+]
+
 export default function WorkoutPage() {
   const params = useParams()
   const planId = params.id as string
@@ -53,6 +81,8 @@ export default function WorkoutPage() {
   const [editingDateSessionId, setEditingDateSessionId] = useState<string | null>(null)
   const [selectedVideo, setSelectedVideo] = useState<{ url: string; title: string } | null>(null)
   const hasAutoCreatedRef = useRef(false)
+
+  const headerVariant = HEADER_VARIANTS[planIndex % HEADER_VARIANTS.length]
 
   useEffect(() => {
     fetchWorkoutData()
@@ -386,22 +416,25 @@ export default function WorkoutPage() {
       <Navbar />
       <div className="flex-1 md:p-8">
         <div className="max-w-full mx-auto">
-          <div className={`flex items-center justify-between mb-6 sticky top-14 md:static z-40 md:z-auto py-2 px-4 rounded-lg ${
-            (() => {
-              const colors = ['bg-blue-100', 'bg-green-100', 'bg-purple-100', 'bg-pink-100', 'bg-yellow-100']
-              return colors[planIndex % colors.length]
-            })()
-          }`}>
-            <h1 className="text-2xl md:text-3xl font-bold">{planName}</h1>
-            <Button onClick={handleStartNewWorkout} disabled={isCreatingSession} size="sm">
-              {isCreatingSession ? 'Adding...' : 'Add Workout Day'}
-            </Button>
+          <div
+            className={`relative flex items-center justify-between mb-6 sticky top-14 md:static z-40 md:z-auto py-4 px-6 rounded-2xl border border-white/60 shadow-md bg-gradient-to-r ${headerVariant.gradient} ${headerVariant.text}`}
+          >
+            <div
+              className={`absolute inset-0 bg-gradient-to-br ${headerVariant.accent} opacity-70 pointer-events-none`}
+              aria-hidden="true"
+            />
+            <div className="relative z-10 flex items-center justify-between w-full">
+              <h1 className="text-2xl md:text-3xl font-bold drop-shadow-sm">{planName}</h1>
+              <Button onClick={handleStartNewWorkout} disabled={isCreatingSession} size="sm" className="shadow">
+                {isCreatingSession ? 'Adding...' : 'Add Workout Day'}
+              </Button>
+            </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full border-collapse bg-white">
               <thead>
                 <tr>
-                  <th className="p-2 min-w-[80px] sticky left-0 z-10 bg-gray-200">
+                  <th className="p-2 min-w-[80px] sticky left-0 z-10 bg-transparent">
                     <div className="text-sm font-semibold">Date</div>
                   </th>
                   {exercises.map((exercise, exerciseIdx) => (
@@ -441,7 +474,7 @@ export default function WorkoutPage() {
 
                   return (
                     <tr key={session.id} className="bg-white">
-                      <td className="p-2 sticky left-0 z-10 bg-inherit">
+                      <td className="p-2 sticky left-0 z-10 bg-transparent">
                         <div className="font-bold text-center">{session.session_number}</div>
                         {editingDateSessionId === session.id ? (
                           <Input
