@@ -89,37 +89,38 @@ const fetchPlans = async (supabase: ReturnType<typeof createClient>) => {
   store.isLoading = true
   notify()
 
-  pendingFetch = supabase
-    .from('workout_plans')
-    .select(
-      `
-      *,
-      workout_plan_exercises (
-        id,
-        order_index,
-        is_hidden,
-        exercises (*)
-      )
-    `
-    )
-    .order('created_at', { ascending: false })
-    .order('order_index', { foreignTable: 'workout_plan_exercises', ascending: true })
-    .then(({ data, error }) => {
+  pendingFetch = (async () => {
+    try {
+      const { data, error } = await supabase
+        .from('workout_plans')
+        .select(
+          `
+          *,
+          workout_plan_exercises (
+            id,
+            order_index,
+            is_hidden,
+            exercises (*)
+          )
+        `
+        )
+        .order('created_at', { ascending: false })
+        .order('order_index', { foreignTable: 'workout_plan_exercises', ascending: true })
+
       if (error) {
         store.error = error.message
       } else {
         store.error = null
         store.plans = formatPlans(data)
       }
-    })
-    .catch((err) => {
-      store.error = err.message || 'Failed to load plans'
-    })
-    .finally(() => {
+    } catch (err: any) {
+      store.error = err?.message || 'Failed to load plans'
+    } finally {
       store.isLoading = false
       pendingFetch = null
       notify()
-    })
+    }
+  })()
 
   return pendingFetch
 }
