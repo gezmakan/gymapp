@@ -447,9 +447,9 @@ export default function WorkoutPage() {
               <table className="w-full border-collapse bg-white" style={{ minWidth: `${gridMinWidth}px` }}>
                 <thead>
                   <tr>
-                    <th className="p-2 min-w-[80px] sticky left-0 z-10 bg-transparent">
-                      <div className="text-sm font-semibold">Date</div>
-                    </th>
+                    <th className="p-2 min-w-[80px] w-[80px] sticky left-0 z-20 bg-white shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]">
+                    <div className="text-sm font-semibold">Date</div>
+                  </th>
                     {exercises.map((exercise, exerciseIdx) => (
                       <th
                         key={exercise.id}
@@ -487,7 +487,7 @@ export default function WorkoutPage() {
 
                     return (
                       <tr key={session.id} className="bg-white">
-                        <td className="p-2 sticky left-0 z-10 bg-transparent">
+                        <td className="p-2 min-w-[80px] w-[80px] sticky left-0 z-10 bg-white shadow-[4px_0_8px_-4px_rgba(0,0,0,0.06)]">
                           <div className="font-bold text-center">{session.session_number}</div>
                           {editingDateSessionId === session.id ? (
                             <Input
