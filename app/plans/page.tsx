@@ -79,11 +79,17 @@ type WorkoutPlan = {
 function SortableExerciseRow({
   exercise,
   onHide,
-  onVideoClick
+  onVideoClick,
+  isEditing,
+  isHidden,
+  onDelete
 }: {
   exercise: PlanExercise
   onHide: () => void
   onVideoClick: () => void
+  isEditing: boolean
+  isHidden?: boolean
+  onDelete?: () => void
 }) {
   const {
     attributes,
@@ -101,11 +107,13 @@ function SortableExerciseRow({
   }
 
   return (
-    <TableRow ref={setNodeRef} style={style} className="select-none">
+    <TableRow ref={setNodeRef} style={style} className={`select-none ${isHidden ? 'bg-gray-50 text-gray-500' : ''}`}>
       <TableCell className="w-[40px] p-2">
-        <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing touch-none">
-          <GripVertical className="h-4 w-4 text-gray-400" />
-        </div>
+        {!isHidden && isEditing && (
+          <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing touch-none">
+            <GripVertical className="h-4 w-4 text-gray-400" />
+          </div>
+        )}
       </TableCell>
       <TableCell className="font-medium p-2">
         {exercise.video_url ? (
@@ -124,15 +132,29 @@ function SortableExerciseRow({
       </TableCell>
       <TableCell className="p-2 text-sm">{exercise.sets}x{exercise.reps}</TableCell>
       <TableCell className="text-right p-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onHide}
-          className="h-7 w-7 p-0"
-          title="Hide exercise"
-        >
-          <EyeOff className="h-3 w-3 text-gray-500" />
-        </Button>
+        {isHidden ? (
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" size="sm" onClick={onHide}>
+              Unhide
+            </Button>
+            <Button variant="destructive" size="sm" onClick={onDelete}>
+              <Trash2 className="h-3 w-3 mr-1" />
+              Delete
+            </Button>
+          </div>
+        ) : (
+          isEditing && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onHide}
+              className="h-7 w-7 p-0"
+              title="Hide exercise"
+            >
+              <EyeOff className="h-3 w-3 text-gray-500" />
+            </Button>
+          )
+        )}
       </TableCell>
     </TableRow>
   )
@@ -143,17 +165,17 @@ export default function PlansPage() {
   const [allExercises, setAllExercises] = useState<Exercise[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [selectedPlanForAdd, setSelectedPlanForAdd] = useState<string | null>(null)
-  const [hiddenDialogPlanId, setHiddenDialogPlanId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedVideo, setSelectedVideo] = useState<{ url: string; title: string } | null>(null)
   const [editingPlanId, setEditingPlanId] = useState<string | null>(null)
   const [editingPlanName, setEditingPlanName] = useState('')
+  const [editingPlanMode, setEditingPlanMode] = useState<string | null>(null)
   const router = useRouter()
   const supabase = createClient()
 
   const MAX_PLANS = 7
 
-  const sensors = useSensors(
+const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 8,
@@ -419,7 +441,6 @@ export default function PlansPage() {
   }
 
   const canAddMore = plans.length < MAX_PLANS
-  const hiddenPlan = hiddenDialogPlanId ? plans.find(p => p.id === hiddenDialogPlanId) : null
 
   const filteredExercises = allExercises.filter(ex =>
     ex.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -525,14 +546,25 @@ export default function PlansPage() {
                         {plan.name}
                       </CardTitle>
                     )}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeletePlan(plan.id)}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setEditingPlanMode(prev => (prev === plan.id ? null : plan.id))}
+                      >
+                        {editingPlanMode === plan.id ? 'Done' : 'Edit'}
+                      </Button>
+                      {editingPlanMode === plan.id && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeletePlan(plan.id)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent className="pt-0">
@@ -578,17 +610,38 @@ export default function PlansPage() {
                               strategy={verticalListSortingStrategy}
                             >
                               {plan.exercises.map((exercise) => (
-                                <SortableExerciseRow
-                                  key={exercise.plan_exercise_id}
-                                  exercise={exercise}
-                                  onHide={() => handleHideExercise(plan.id, exercise.plan_exercise_id)}
-                                  onVideoClick={() => setSelectedVideo({ url: exercise.video_url!, title: exercise.name })}
-                                />
-                              ))}
-                            </SortableContext>
+                            <SortableExerciseRow
+                              key={exercise.plan_exercise_id}
+                              exercise={exercise}
+                              onHide={() => handleHideExercise(plan.id, exercise.plan_exercise_id)}
+                              onVideoClick={() => setSelectedVideo({ url: exercise.video_url!, title: exercise.name })}
+                              isEditing={editingPlanMode === plan.id}
+                            />
+                            ))}
+                          </SortableContext>
+                        </TableBody>
+                      </Table>
+                    </DndContext>
+                    {editingPlanMode === plan.id && plan.hiddenExercises.length > 0 && (
+                      <div className="mt-4">
+                        <p className="text-sm font-semibold text-gray-500 mb-2">Hidden Exercises</p>
+                        <Table>
+                          <TableBody>
+                            {plan.hiddenExercises.map((exercise) => (
+                              <SortableExerciseRow
+                                key={exercise.plan_exercise_id}
+                                exercise={exercise}
+                                onHide={() => handleUnhideExercise(plan.id, exercise.plan_exercise_id)}
+                                onVideoClick={() => setSelectedVideo({ url: exercise.video_url!, title: exercise.name })}
+                                isEditing={false}
+                                isHidden
+                                onDelete={() => handleRemoveExercise(plan.id, exercise.plan_exercise_id)}
+                              />
+                            ))}
                           </TableBody>
                         </Table>
-                      </DndContext>
+                      </div>
+                    )}
                       <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                         <Button
                           variant="outline"
@@ -597,15 +650,6 @@ export default function PlansPage() {
                         >
                           <Plus className="h-4 w-4 mr-2" /> Add Exercise
                         </Button>
-                        {plan.hiddenExercises.length > 0 && (
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => setHiddenDialogPlanId(plan.id)}
-                          >
-                            Hidden ({plan.hiddenExercises.length})
-                          </Button>
-                        )}
                         <Button
                           variant="outline"
                           size="sm"
@@ -628,7 +672,7 @@ export default function PlansPage() {
       <Footer />
 
   {/* Add Exercise Dialog */}
-  <Dialog open={!!selectedPlanForAdd} onOpenChange={(open) => !open && setSelectedPlanForAdd(null)}>
+      <Dialog open={!!selectedPlanForAdd} onOpenChange={(open) => !open && setSelectedPlanForAdd(null)}>
         <DialogContent className="sm:!max-w-[800px] w-[95vw] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add Exercise to Plan</DialogTitle>
@@ -685,49 +729,6 @@ export default function PlansPage() {
           </div>
         </DialogContent>
   </Dialog>
-
-      {/* Hidden Exercises Dialog */}
-      <Dialog open={!!hiddenDialogPlanId} onOpenChange={(open) => !open && setHiddenDialogPlanId(null)}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Hidden Exercises</DialogTitle>
-          </DialogHeader>
-          {hiddenPlan && hiddenPlan.hiddenExercises.length > 0 ? (
-            <div className="space-y-3 max-h-96 overflow-y-auto">
-              {hiddenPlan.hiddenExercises.map((exercise) => (
-                <div key={exercise.plan_exercise_id} className="flex items-center justify-between border rounded-lg p-3 bg-gray-50">
-                  <div>
-                    <p className="font-semibold">{exercise.name}</p>
-                    <p className="text-sm text-gray-600">{exercise.sets} x {exercise.reps} • {exercise.muscle_groups || '—'}</p>
-                  </div>
-                  <div className="flex gap-2 flex-wrap justify-end">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        handleUnhideExercise(hiddenPlan.id, exercise.plan_exercise_id)
-                        setHiddenDialogPlanId(hiddenPlan.id)
-                      }}
-                    >
-                      Unhide
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleRemoveExercise(hiddenPlan.id, exercise.plan_exercise_id)}
-                    >
-                      <Trash2 className="h-4 w-4 mr-1" />
-                      Delete
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-gray-600">No hidden exercises.</p>
-          )}
-        </DialogContent>
-      </Dialog>
 
       {selectedVideo && (
         <VideoModal
