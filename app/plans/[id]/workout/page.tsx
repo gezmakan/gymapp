@@ -357,7 +357,12 @@ export default function WorkoutPage() {
   }
 
   if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 text-2xl md:text-3xl font-semibold text-gray-700">
+        <span role="img" aria-label="weight-lifter" className="mr-3">🏋️‍♂️</span>
+        Working things out...
+      </div>
+    )
   }
 
   if (exercises.length === 0) {
@@ -419,10 +424,12 @@ export default function WorkoutPage() {
       <Navbar />
       <div className="flex-1 md:p-8">
         <div className="max-w-full mx-auto">
-          <div className="overflow-x-auto">
-            <div style={{ minWidth: `${gridMinWidth}px` }}>
+          <div className="overflow-x-auto md:overflow-visible">
+            <div className="md:w-full space-y-6" style={{ minWidth: `${gridMinWidth}px` }}>
               <div
-                className={`relative flex items-center justify-between mb-6 sticky top-14 md:static z-40 md:z-auto py-4 px-6 rounded-2xl border border-white/60 shadow-md bg-gradient-to-r ${headerVariant.gradient} ${headerVariant.text}`}
+                className={`relative flex items-center justify-between mb-6 z-30 py-4 px-6 rounded-2xl border border-white/60 shadow-md bg-gradient-to-r ${headerVariant.gradient} ${headerVariant.text} ${
+                  exercises.length > 3 ? 'md:sticky md:top-16' : 'md:static'
+                }`}
                 style={{ minWidth: `${gridMinWidth}px` }}
               >
                 <div

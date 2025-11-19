@@ -15,6 +15,7 @@ export default function Navbar() {
   const [user, setUser] = useState<any>(null)
   const pathname = usePathname()
   const supabase = createClient()
+  const showPlannerPills = pathname.startsWith('/plans/') && pathname.includes('/workout')
 
   useEffect(() => {
     fetchPlans()
@@ -76,7 +77,7 @@ export default function Navbar() {
                 <Link
                   key={plan.id}
                   href={`/plans/${plan.id}/workout`}
-                  className={`text-sm font-medium whitespace-nowrap px-4 py-1.5 rounded-full transition-colors text-gray-900 ${
+                  className={`text-sm font-medium whitespace-nowrap px-4 py-1.5 rounded-full transition-colors text-gray-900 shrink-0 ${
                     isActive
                       ? colorSet.active
                       : `${colorSet.bg} ${colorSet.hover}`
@@ -86,6 +87,14 @@ export default function Navbar() {
                 </Link>
               )
             })}
+            {showPlannerPills && (
+              <Link
+                href="/plans"
+                className="text-sm font-medium whitespace-nowrap px-4 py-1.5 rounded-full transition-colors bg-gray-200 text-gray-800 hover:bg-gray-300 shrink-0"
+              >
+                Planner
+              </Link>
+            )}
             {!user && (
               <>
                 <Link
