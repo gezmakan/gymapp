@@ -126,11 +126,11 @@ const fetchPlans = async (supabase: ReturnType<typeof createClient>) => {
 }
 
 export function usePlansStore() {
-  const supabaseRef = useRef<ReturnType<typeof createClient>>()
+  const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null)
   if (!supabaseRef.current) {
     supabaseRef.current = createClient()
   }
-  const supabase = supabaseRef.current
+  const supabase = supabaseRef.current!
 
   useEffect(() => {
     if (!initialized) {
