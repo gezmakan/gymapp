@@ -89,13 +89,11 @@ const fetchPlans = async (supabase: ReturnType<typeof createClient>) => {
     return pendingFetch
   }
 
-  console.log('🔄 fetchPlans: Starting...')
   store.isLoading = true
   notify()
 
   pendingFetch = (async () => {
     try {
-      console.log('🔄 fetchPlans: Fetching from Supabase...')
       const { data, error } = await supabase
         .from('workout_plans')
         .select(
@@ -113,19 +111,14 @@ const fetchPlans = async (supabase: ReturnType<typeof createClient>) => {
         .order('order_index', { foreignTable: 'workout_plan_exercises', ascending: true })
 
       if (error) {
-        console.log('❌ fetchPlans: Error -', error.message)
         store.error = error.message
       } else {
-        console.log('✅ fetchPlans: Success - Plans:', data?.length)
         store.error = null
         store.plans = formatPlans(data)
-        console.log('✅ fetchPlans: Formatted plans:', store.plans?.length)
       }
     } catch (err: any) {
-      console.log('❌ fetchPlans: Caught error -', err?.message)
       store.error = err?.message || 'Failed to load plans'
     } finally {
-      console.log('✅ fetchPlans: Setting isLoading = false')
       store.isLoading = false
       pendingFetch = null
       notify()
@@ -146,23 +139,17 @@ export function usePlansStore() {
     // Only fetch once globally, not per component mount
     if (!fetchInitialized) {
       fetchInitialized = true
-      console.log('🎬 useEffect: Initial fetchPlans call (ONCE)')
       fetchPlans(supabase)
-    } else {
-      console.log('🎬 useEffect: Skipping initial fetch (already initialized)')
     }
 
     if (!initialized) {
       initialized = true
-      console.log('🎬 useEffect: Setting up real-time subscription')
 
       const debouncedFetch = () => {
-        console.log('🔔 Real-time event received, debouncing...')
         if (realtimeDebounceTimer) {
           clearTimeout(realtimeDebounceTimer)
         }
         realtimeDebounceTimer = setTimeout(() => {
-          console.log('🔔 Real-time debounce completed, fetching...')
           fetchPlans(supabase)
         }, 300) // Wait 300ms before refetching to allow optimistic update to settle
       }

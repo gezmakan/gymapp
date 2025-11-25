@@ -485,33 +485,37 @@ export default function WorkoutPage() {
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Toaster />
       <Navbar />
-      <div className="flex-1 md:p-8">
-        <div className="max-w-full mx-auto">
-          <div className="overflow-x-auto md:overflow-visible">
-            <div className="md:w-full space-y-6" style={{ minWidth: `${gridMinWidth}px` }}>
-              <div
-                className={`relative flex items-center justify-between mb-6 z-30 py-4 px-6 rounded-2xl border border-white/60 shadow-md overflow-hidden bg-gradient-to-r ${headerVariant.gradient} ${headerVariant.text} ${
-                  exercises.length > 3 ? 'md:sticky md:top-16' : 'md:static'
-                }`}
-                style={{ minWidth: `${gridMinWidth}px` }}
-              >
-                <div
-                  className={`absolute inset-0 bg-gradient-to-br ${headerVariant.accent} opacity-70 pointer-events-none`}
-                  aria-hidden="true"
-                />
-                <div className="relative z-10 flex items-center justify-between w-full">
-              <h1 className="text-xl md:text-2xl font-bold drop-shadow-sm">{planName}</h1>
-                  <Button onClick={handleStartNewWorkout} disabled={isCreatingSession} size="sm" className="shadow">
-                    {isCreatingSession ? 'Adding...' : '+ Add Day'}
-                  </Button>
-                </div>
-              </div>
+      <div className="flex-1">
+        {/* Title row - full width and sticky */}
+        <div
+          className={`relative flex items-center justify-between z-30 py-4 px-4 md:px-8 border-b border-white/60 shadow-sm overflow-hidden bg-gradient-to-r ${headerVariant.gradient} ${headerVariant.text} sticky top-14`}
+        >
+          <div
+            className={`absolute inset-0 bg-gradient-to-br ${headerVariant.accent} opacity-70 pointer-events-none`}
+            aria-hidden="true"
+          />
+          <div className="relative z-10 w-full max-w-full mx-auto">
+            <h1 className="text-xl md:text-2xl font-bold drop-shadow-sm">{planName}</h1>
+          </div>
+        </div>
+
+        {/* Content area */}
+        <div className="md:p-8">
+          <div className="max-w-full mx-auto">
+            <div className="overflow-x-auto md:overflow-visible">
               <table className="w-full border-collapse bg-white" style={{ minWidth: `${gridMinWidth}px` }}>
                 <thead>
                   <tr>
                     <th className="p-2 min-w-[80px] w-[80px] sticky left-0 z-20 bg-white shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]">
-                    <div className="text-sm font-semibold">Date</div>
-                  </th>
+                      <button
+                        onClick={handleStartNewWorkout}
+                        disabled={isCreatingSession}
+                        className="text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline disabled:text-gray-400 disabled:no-underline transition-colors"
+                        title="Add a new workout day"
+                      >
+                        {isCreatingSession ? 'Adding...' : '+ Add'}
+                      </button>
+                    </th>
                     {exercises.map((exercise, exerciseIdx) => (
                       <th
                         key={exercise.id}
@@ -534,7 +538,7 @@ export default function WorkoutPage() {
                         <div className="grid grid-cols-4 gap-0 mt-1">
                           {Array.from({ length: 4 }).map((_, setIdx) => (
                             <div key={setIdx} className="text-xs text-gray-500 text-center">
-                              Set {setIdx + 1}
+                              {setIdx + 1}
                             </div>
                           ))}
                         </div>
