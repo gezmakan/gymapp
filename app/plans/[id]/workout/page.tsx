@@ -500,13 +500,13 @@ export default function WorkoutPage() {
         </div>
 
         {/* Content area */}
-        <div className="md:p-8">
+        <div className="pt-4 md:p-8">
           <div className="max-w-full mx-auto">
             <div className="overflow-x-auto md:overflow-visible">
               <table className="w-full border-collapse bg-white" style={{ minWidth: `${gridMinWidth}px` }}>
                 <thead>
                   <tr>
-                    <th className="p-2 min-w-[80px] w-[80px] sticky left-0 z-20 bg-white shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]">
+                    <th className="px-2 py-1 min-w-[80px] w-[80px] sticky left-0 z-20 bg-white shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                       <button
                         onClick={handleStartNewWorkout}
                         disabled={isCreatingSession}
@@ -519,7 +519,7 @@ export default function WorkoutPage() {
                     {exercises.map((exercise, exerciseIdx) => (
                       <th
                         key={exercise.id}
-                        className={`p-2 min-w-[200px] max-w-[200px] border-l-8 border-white ${
+                        className={`px-2 py-1 min-w-[200px] max-w-[200px] border-l-8 border-white ${
                           exerciseIdx % 2 === 0 ? 'bg-gray-100' : 'bg-gray-200'
                         }`}
                       >
@@ -534,7 +534,6 @@ export default function WorkoutPage() {
                         >
                           {exercise.name}
                         </div>
-                        <div className="text-sm font-normal mt-1">{exercise.sets} x {exercise.reps}</div>
                         <div className="grid grid-cols-4 gap-0 mt-1">
                           {Array.from({ length: 4 }).map((_, setIdx) => (
                             <div key={setIdx} className="text-xs text-gray-500 text-center">
@@ -553,7 +552,7 @@ export default function WorkoutPage() {
 
                     return (
                       <tr key={session.id} className="bg-white">
-                        <td className="p-2 min-w-[80px] w-[80px] sticky left-0 z-10 bg-white shadow-[4px_0_8px_-4px_rgba(0,0,0,0.06)]">
+                        <td className="px-2 py-1 min-w-[80px] w-[80px] sticky left-0 z-10 bg-white shadow-[4px_0_8px_-4px_rgba(0,0,0,0.06)]">
                           <div className="font-bold text-center">{session.session_number}</div>
                           {editingDateSessionId === session.id ? (
                             <Input
@@ -593,7 +592,7 @@ export default function WorkoutPage() {
                           )}
                         </td>
                         {exercises.map((exercise, exerciseIdx) => (
-                          <td key={exercise.id} className={`p-2 ${exerciseIdx > 0 ? 'border-l-8 border-white' : ''}`}>
+                          <td key={exercise.id} className={`px-2 py-1 ${exerciseIdx > 0 ? 'border-l-8 border-white' : ''}`}>
                             <div className="grid grid-cols-4 gap-0">
                               {Array.from({ length: 4 }).map((_, setIdx) => {
                                 const setNumber = setIdx + 1
