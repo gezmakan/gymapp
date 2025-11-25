@@ -81,6 +81,7 @@ export default function WorkoutPage() {
   const [editingDateSessionId, setEditingDateSessionId] = useState<string | null>(null)
   const [selectedVideo, setSelectedVideo] = useState<{ url: string; title: string } | null>(null)
   const hasAutoCreatedRef = useRef(false)
+  const saveTimeoutsRef = useRef<Map<string, NodeJS.Timeout>>(new Map())
 
   const headerVariant = HEADER_VARIANTS[planIndex % HEADER_VARIANTS.length]
   const dateColumnWidth = 120
@@ -90,6 +91,14 @@ export default function WorkoutPage() {
   useEffect(() => {
     fetchWorkoutData()
   }, [planId])
+
+  // Cleanup: flush all pending saves on unmount
+  useEffect(() => {
+    return () => {
+      saveTimeoutsRef.current.forEach(timeout => clearTimeout(timeout))
+      saveTimeoutsRef.current.clear()
+    }
+  }, [])
 
   const fetchWorkoutData = async () => {
     try {
@@ -293,31 +302,69 @@ export default function WorkoutPage() {
         s => s.exercise_id === exerciseId && s.set_number === setNumber
       )
 
+      // Update local state IMMEDIATELY for responsive UI
       if (setIndex === -1) {
-        const { data: insertedSet, error: insertError } = await supabase
-          .from('workout_session_sets')
-          .insert({
-            workout_session_id: sessionId,
-            exercise_id: exerciseId,
-            set_number: setNumber,
-            reps: field === 'reps' ? value : null,
-            weight: field === 'weight' ? value : null,
-          })
-          .select()
-          .single()
-
-        if (insertError) throw insertError
+        // Create temporary set with placeholder ID
+        const tempSet: SessionSet = {
+          id: `temp-${sessionId}-${exerciseId}-${setNumber}`,
+          workout_session_id: sessionId,
+          exercise_id: exerciseId,
+          set_number: setNumber,
+          reps: field === 'reps' ? value : null,
+          weight: field === 'weight' ? value : null,
+        }
 
         setSessionSets(prev => ({
           ...prev,
-          [sessionId]: [...(prev[sessionId] || []), insertedSet],
+          [sessionId]: [...(prev[sessionId] || []), tempSet],
         }))
 
+        // Debounce the database insert
+        const timeoutKey = `${sessionId}-${exerciseId}-${setNumber}`
+        const existingTimeout = saveTimeoutsRef.current.get(timeoutKey)
+        if (existingTimeout) clearTimeout(existingTimeout)
+
+        const timeout = setTimeout(async () => {
+          try {
+            const { data: insertedSet, error: insertError } = await supabase
+              .from('workout_session_sets')
+              .insert({
+                workout_session_id: sessionId,
+                exercise_id: exerciseId,
+                set_number: setNumber,
+                reps: field === 'reps' ? value : null,
+                weight: field === 'weight' ? value : null,
+              })
+              .select()
+              .single()
+
+            if (insertError) throw insertError
+
+            // Replace temp set with real set from database
+            setSessionSets(prev => ({
+              ...prev,
+              [sessionId]: (prev[sessionId] || []).map(s =>
+                s.id === tempSet.id ? insertedSet : s
+              ),
+            }))
+          } catch (error) {
+            console.error('Error inserting set:', error)
+            // Revert on error
+            setSessionSets(prev => ({
+              ...prev,
+              [sessionId]: (prev[sessionId] || []).filter(s => s.id !== tempSet.id),
+            }))
+          }
+          saveTimeoutsRef.current.delete(timeoutKey)
+        }, 500)
+
+        saveTimeoutsRef.current.set(timeoutKey, timeout)
         return
       }
 
       const targetSet = sets[setIndex]
 
+      // Update local state IMMEDIATELY
       setSessionSets(prev => ({
         ...prev,
         [sessionId]: (prev[sessionId] || []).map((s, idx) =>
@@ -325,12 +372,27 @@ export default function WorkoutPage() {
         ),
       }))
 
-      const { error } = await supabase
-        .from('workout_session_sets')
-        .update({ [field]: value })
-        .eq('id', targetSet.id)
+      // Debounce the database update
+      const timeoutKey = `${sessionId}-${exerciseId}-${setNumber}-${field}`
+      const existingTimeout = saveTimeoutsRef.current.get(timeoutKey)
+      if (existingTimeout) clearTimeout(existingTimeout)
 
-      if (error) throw error
+      const timeout = setTimeout(async () => {
+        try {
+          const { error } = await supabase
+            .from('workout_session_sets')
+            .update({ [field]: value })
+            .eq('id', targetSet.id)
+
+          if (error) throw error
+        } catch (error) {
+          console.error('Error updating set:', error)
+          // Could revert here, but usually not necessary for updates
+        }
+        saveTimeoutsRef.current.delete(timeoutKey)
+      }, 500)
+
+      saveTimeoutsRef.current.set(timeoutKey, timeout)
     } catch (error) {
       console.error('Error updating set:', error)
       toast.error('Failed to update set')
