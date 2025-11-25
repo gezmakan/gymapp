@@ -325,6 +325,18 @@ export default function PlanDetailPage() {
   }
 
   const handleHideExercise = async (planExerciseId: string) => {
+    // Optimistically update local state immediately
+    const exerciseToHide = planExercises.find(ex => ex.plan_exercise_id === planExerciseId)
+
+    if (!exerciseToHide) {
+      // Exercise not found or already hidden
+      return
+    }
+
+    setPlanExercises(prev => prev.filter(ex => ex.plan_exercise_id !== planExerciseId))
+    setHiddenExercises(prev => [...prev, { ...exerciseToHide, is_hidden: true }])
+    toast.success('Exercise hidden')
+
     try {
       const { error } = await supabase
         .from('workout_plan_exercises')
@@ -332,15 +344,28 @@ export default function PlanDetailPage() {
         .eq('id', planExerciseId)
 
       if (error) throw error
-      await fetchPlanExercises()
-      toast.success('Exercise hidden')
     } catch (error) {
       console.error('Error hiding exercise:', error)
       toast.error('Failed to hide exercise')
+      // Revert on error
+      await fetchPlanExercises()
     }
   }
 
   const handleUnhideExercise = async (planExerciseId: string) => {
+    // Optimistically update local state immediately
+    const exerciseToUnhide = hiddenExercises.find(ex => ex.plan_exercise_id === planExerciseId)
+
+    if (!exerciseToUnhide) {
+      // Exercise not found or already visible
+      return
+    }
+
+    setHiddenExercises(prev => prev.filter(ex => ex.plan_exercise_id !== planExerciseId))
+    // Add back to planExercises in correct order based on order_index
+    setPlanExercises(prev => [...prev, { ...exerciseToUnhide, is_hidden: false }].sort((a, b) => a.order_index - b.order_index))
+    toast.success('Exercise restored')
+
     try {
       const { error } = await supabase
         .from('workout_plan_exercises')
@@ -348,11 +373,11 @@ export default function PlanDetailPage() {
         .eq('id', planExerciseId)
 
       if (error) throw error
-      await fetchPlanExercises()
-      toast.success('Exercise restored')
     } catch (error) {
       console.error('Error unhiding exercise:', error)
       toast.error('Failed to unhide exercise')
+      // Revert on error
+      await fetchPlanExercises()
     }
   }
 

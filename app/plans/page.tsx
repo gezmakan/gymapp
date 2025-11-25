@@ -139,7 +139,7 @@ function SortableExerciseRow({
 }
 
 export default function PlansPage() {
-  const { plans, isLoading: plansLoading, refresh: refreshPlans } = usePlansStore()
+  const { plans, isLoading: plansLoading, refresh: refreshPlans, optimisticHideExercise, optimisticUnhideExercise } = usePlansStore()
   const [allExercises, setAllExercises] = useState<Exercise[]>([])
   const [selectedPlanForAdd, setSelectedPlanForAdd] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
@@ -309,6 +309,16 @@ const sensors = useSensors(
   }
 
   const handleHideExercise = async (planId: string, planExerciseId: string) => {
+    // Optimistically update UI immediately
+    const wasUpdated = optimisticHideExercise(planId, planExerciseId)
+
+    if (!wasUpdated) {
+      // Exercise not found or already hidden
+      return
+    }
+
+    toast.success('Exercise hidden')
+
     try {
       const { error } = await supabase
         .from('workout_plan_exercises')
@@ -316,15 +326,26 @@ const sensors = useSensors(
         .eq('id', planExerciseId)
 
       if (error) throw error
-      toast.success('Exercise hidden')
-      await refreshPlans()
+      // Refresh to ensure consistency with DB (will be handled by realtime subscription)
     } catch (error) {
       console.error('Error hiding exercise:', error)
       toast.error('Failed to hide exercise')
+      // Revert on error
+      await refreshPlans()
     }
   }
 
   const handleUnhideExercise = async (planId: string, planExerciseId: string) => {
+    // Optimistically update UI immediately
+    const wasUpdated = optimisticUnhideExercise(planId, planExerciseId)
+
+    if (!wasUpdated) {
+      // Exercise not found or already visible
+      return
+    }
+
+    toast.success('Exercise restored')
+
     try {
       const { error } = await supabase
         .from('workout_plan_exercises')
@@ -332,11 +353,12 @@ const sensors = useSensors(
         .eq('id', planExerciseId)
 
       if (error) throw error
-      toast.success('Exercise restored')
-      await refreshPlans()
+      // Refresh to ensure consistency with DB (will be handled by realtime subscription)
     } catch (error) {
       console.error('Error unhiding exercise:', error)
       toast.error('Failed to unhide exercise')
+      // Revert on error
+      await refreshPlans()
     }
   }
 
