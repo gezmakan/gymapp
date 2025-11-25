@@ -248,6 +248,41 @@ export function usePlansStore() {
     return found
   }
 
+  const optimisticReorderExercises = (planId: string, oldIndex: number, newIndex: number): boolean => {
+    if (!store.plans) return false
+
+    let found = false
+    store.plans = store.plans.map(plan => {
+      if (plan.id !== planId) return plan
+
+      if (oldIndex < 0 || oldIndex >= plan.exercises.length || newIndex < 0 || newIndex >= plan.exercises.length) {
+        return plan
+      }
+
+      found = true
+      // Reorder the exercises array
+      const reorderedExercises = [...plan.exercises]
+      const [movedExercise] = reorderedExercises.splice(oldIndex, 1)
+      reorderedExercises.splice(newIndex, 0, movedExercise)
+
+      // Update order_index for all exercises
+      const updatedExercises = reorderedExercises.map((ex, idx) => ({
+        ...ex,
+        order_index: idx,
+      }))
+
+      return {
+        ...plan,
+        exercises: updatedExercises,
+      }
+    })
+
+    if (found) {
+      notify()
+    }
+    return found
+  }
+
   return {
     plans: snapshot.plans ?? [],
     isLoading: snapshot.isLoading,
@@ -255,5 +290,6 @@ export function usePlansStore() {
     refresh: () => fetchPlans(supabase),
     optimisticHideExercise,
     optimisticUnhideExercise,
+    optimisticReorderExercises,
   }
 }

@@ -139,7 +139,7 @@ function SortableExerciseRow({
 }
 
 export default function PlansPage() {
-  const { plans, isLoading: plansLoading, refresh: refreshPlans, optimisticHideExercise, optimisticUnhideExercise } = usePlansStore()
+  const { plans, isLoading: plansLoading, refresh: refreshPlans, optimisticHideExercise, optimisticUnhideExercise, optimisticReorderExercises } = usePlansStore()
   const [allExercises, setAllExercises] = useState<Exercise[]>([])
   const [selectedPlanForAdd, setSelectedPlanForAdd] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
@@ -375,10 +375,16 @@ const sensors = useSensors(
     const oldIndex = plan.exercises.findIndex(ex => ex.plan_exercise_id === active.id)
     const newIndex = plan.exercises.findIndex(ex => ex.plan_exercise_id === over.id)
 
-    const newExercises = arrayMove(plan.exercises, oldIndex, newIndex)
+    // Optimistically update UI immediately
+    const wasUpdated = optimisticReorderExercises(planId, oldIndex, newIndex)
+
+    if (!wasUpdated) {
+      return
+    }
 
     // Update in database
     try {
+      const newExercises = arrayMove(plan.exercises, oldIndex, newIndex)
       const updates = newExercises.map((ex, idx) => ({
         id: ex.plan_exercise_id,
         order_index: idx,
@@ -390,10 +396,11 @@ const sensors = useSensors(
           .update({ order_index: update.order_index })
           .eq('id', update.id)
       }
-      await refreshPlans()
+      // Refresh handled by real-time subscription
     } catch (error) {
       console.error('Error updating order:', error)
       toast.error('Failed to reorder exercises')
+      // Revert on error
       await refreshPlans()
     }
   }
