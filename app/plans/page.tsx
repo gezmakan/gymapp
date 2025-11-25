@@ -449,6 +449,7 @@ const sensors = useSensors(
                   onClick={() => router.push('/plans/create')}
                   disabled={!canAddMore}
                   size="sm"
+                  variant="outline"
                   className="md:h-10"
                 >
                   <Plus className="h-4 w-4 md:mr-2" />
@@ -468,7 +469,7 @@ const sensors = useSensors(
           <div className="text-center py-12 bg-white md:rounded-lg border-y md:border mx-4 md:mx-0">
             <Dumbbell className="mx-auto h-12 w-12 text-gray-400 mb-4" />
             <p className="text-gray-600 mb-4">No workout plans yet. Create your first plan!</p>
-            <Button onClick={() => router.push('/plans/create')}>
+            <Button onClick={() => router.push('/plans/create')} variant="outline">
               <Plus className="mr-2 h-4 w-4" /> Create Plan
             </Button>
           </div>

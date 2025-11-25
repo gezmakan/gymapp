@@ -191,7 +191,7 @@ export default function ExercisesPage() {
               />
             </div>
             {user && (
-              <Button onClick={() => router.push('/exercises/add')} size="sm" className="md:h-10 flex-shrink-0">
+              <Button onClick={() => router.push('/exercises/add')} size="sm" variant="outline" className="md:h-10 flex-shrink-0">
                 <Plus className="h-4 w-4 md:mr-2" /> <span className="hidden md:inline">Add Exercise</span>
                 <span className="md:hidden">Add</span>
               </Button>
@@ -202,7 +202,7 @@ export default function ExercisesPage() {
         {exercises.length === 0 ? (
           <div className="text-center py-12 bg-white md:rounded-lg border-y md:border -mx-4 md:mx-0">
             <p className="text-gray-600 mb-4">No exercises yet. Add your first exercise!</p>
-            <Button onClick={() => router.push('/exercises/add')}>
+            <Button onClick={() => router.push('/exercises/add')} variant="outline">
               <Plus className="mr-2 h-4 w-4" /> Add Exercise
             </Button>
           </div>
