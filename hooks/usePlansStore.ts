@@ -27,6 +27,8 @@ let fetchInitialized = false
 let channel: ReturnType<ReturnType<typeof createClient>['channel']> | null = null
 let pendingFetch: Promise<void> | null = null
 let realtimeDebounceTimer: NodeJS.Timeout | null = null
+let currentUserId: string | null = null
+let authListenerInitialized = false
 
 const formatPlans = (data: any[] | null): WorkoutPlanSummary[] => {
   if (!data) return []
@@ -84,6 +86,18 @@ const getServerSnapshot = (() => {
   return () => cached
 })()
 
+const clearStore = () => {
+  store.plans = null
+  store.isLoading = true
+  store.error = null
+  pendingFetch = null
+  if (realtimeDebounceTimer) {
+    clearTimeout(realtimeDebounceTimer)
+    realtimeDebounceTimer = null
+  }
+  notify()
+}
+
 const fetchPlans = async (supabase: ReturnType<typeof createClient>) => {
   if (pendingFetch) {
     return pendingFetch
@@ -136,6 +150,36 @@ export function usePlansStore() {
   const supabase = supabaseRef.current!
 
   useEffect(() => {
+    // Set up auth listener once globally to handle user changes
+    if (!authListenerInitialized) {
+      authListenerInitialized = true
+
+      supabase.auth.onAuthStateChange(async (_event, session) => {
+        const newUserId = session?.user?.id ?? null
+
+        // If user changed (login, logout, or different user)
+        if (newUserId !== currentUserId) {
+          currentUserId = newUserId
+
+          if (newUserId) {
+            // User logged in - clear old data and fetch new data
+            clearStore()
+            fetchInitialized = false // Reset fetch flag for new user
+            await fetchPlans(supabase)
+          } else {
+            // User logged out - clear all data
+            clearStore()
+            fetchInitialized = false
+          }
+        }
+      })
+
+      // Get initial user
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        currentUserId = user?.id ?? null
+      })
+    }
+
     // Only fetch once globally, not per component mount
     if (!fetchInitialized) {
       fetchInitialized = true
