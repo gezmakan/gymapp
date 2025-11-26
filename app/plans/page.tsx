@@ -536,12 +536,13 @@ const sensors = useSensors(
                   {plan.exercises.length === 0 ? (
                     <div className="py-6 border-2 border-dashed rounded-lg">
                       <p className="text-center text-gray-500 text-sm mb-3">No exercises yet</p>
-                      <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex flex-wrap items-center justify-end gap-2">
                         {isPlanEditing && (
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => setSelectedPlanForAdd(plan.id)}
+                            className="mr-auto"
                           >
                             <Plus className="h-4 w-4 mr-2" /> Add Exercise
                           </Button>
@@ -609,12 +610,13 @@ const sensors = useSensors(
                         </Table>
                       </div>
                     )}
-                      <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                      <div className="mt-3 flex flex-wrap items-center justify-end gap-2">
                         {isPlanEditing && (
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => setSelectedPlanForAdd(plan.id)}
+                            className="mr-auto"
                           >
                             <Plus className="h-4 w-4 mr-2" /> Add Exercise
                           </Button>

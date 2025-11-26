@@ -181,7 +181,7 @@ export default function ExercisesPage() {
 
         <div className="mb-4">
           <div className="flex items-center gap-3">
-            <div className="relative flex-1 max-w-xl">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
               <Input
                 placeholder="Search exercises..."
@@ -190,9 +190,14 @@ export default function ExercisesPage() {
                 className="pl-10 w-full"
               />
             </div>
-            {user && (
+            {user ? (
               <Button onClick={() => router.push('/exercises/add')} size="sm" variant="outline" className="md:h-10 flex-shrink-0">
                 <Plus className="h-4 w-4 md:mr-2" /> <span className="hidden md:inline">Add Exercise</span>
+                <span className="md:hidden">Add</span>
+              </Button>
+            ) : (
+              <Button onClick={() => router.push('/signup')} size="sm" className="md:h-10 flex-shrink-0 bg-orange-500 hover:bg-orange-600 text-white">
+                <Plus className="h-4 w-4 md:mr-2" /> <span className="hidden md:inline">Add More</span>
                 <span className="md:hidden">Add</span>
               </Button>
             )}
@@ -207,66 +212,70 @@ export default function ExercisesPage() {
             </Button>
           </div>
         ) : (
-          <div className="bg-white md:rounded-lg border-y md:border -mx-4 md:mx-auto md:max-w-3xl">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-orange-50">
-                  <TableHead className="w-[280px] md:w-[240px]">
-                    <button
-                      onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                      className="flex items-center hover:text-gray-900"
+          <div className="bg-white md:rounded-lg border-y md:border -mx-4 md:mx-0 overflow-hidden">
+            <div className="bg-gradient-to-r from-orange-50 to-orange-100/50 px-4 py-2.5 flex items-center justify-between sticky top-0 z-10">
+              <button
+                onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                className="flex items-center gap-2 text-sm font-semibold text-gray-700 hover:text-gray-900"
+              >
+                <ArrowUpDown className="h-4 w-4" />
+                Sort {sortOrder === 'asc' ? 'A-Z' : 'Z-A'}
+              </button>
+              <span className="text-sm text-gray-600">
+                {filteredExercises.length} exercise{filteredExercises.length !== 1 ? 's' : ''}
+              </span>
+            </div>
+
+            {displayedExercises.map((exercise) => (
+              <div
+                key={exercise.id}
+                className="px-4 py-2.5 hover:bg-gray-50 transition-colors border-t first:border-t-0"
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    {exercise.video_url && (
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">
+                        <Video className="h-4 w-4 text-orange-600" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900 truncate">
+                        {exercise.video_url ? (
+                          <button
+                            onClick={() => setSelectedVideo({ url: exercise.video_url!, title: exercise.name, exercise })}
+                            className="text-gray-900 hover:text-orange-600 transition-colors"
+                          >
+                            {exercise.name}
+                          </button>
+                        ) : (
+                          exercise.name
+                        )}
+                      </h3>
+                    </div>
+                    <span className="hidden md:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 flex-shrink-0">
+                      {exercise.muscle_groups || 'No muscle group'}
+                    </span>
+                  </div>
+                  {user && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setEditingExerciseId(exercise.id)}
+                      className="flex-shrink-0 hover:bg-orange-50 text-gray-600 hover:text-orange-600"
                     >
-                      Exercise Name
-                      <ArrowUpDown className="ml-2 h-4 w-4" />
-                    </button>
-                  </TableHead>
-                  <TableHead className="w-[120px]">Muscle Groups</TableHead>
-                  {user && <TableHead className="text-right w-[100px]">Actions</TableHead>}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {displayedExercises.map((exercise) => (
-                  <TableRow key={exercise.id}>
-                    <TableCell className="font-medium max-w-[240px] md:max-w-[200px]">
-                      {exercise.video_url ? (
-                        <button
-                          onClick={() => setSelectedVideo({ url: exercise.video_url!, title: exercise.name, exercise })}
-                          className="text-orange-500 hover:text-orange-600 hover:underline text-left truncate block w-full"
-                          title={exercise.name}
-                        >
-                          {exercise.name}
-                        </button>
-                      ) : (
-                        <span className="truncate block" title={exercise.name}>
-                          {exercise.name}
-                        </span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <span className="truncate block" title={exercise.muscle_groups || '-'}>
-                        {exercise.muscle_groups || '-'}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {user && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setEditingExerciseId(exercise.id)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
+
             {filteredExercises.length > EXERCISES_PER_PAGE && (
-              <div className="p-4 border-t text-center">
+              <div className="p-3 border-t bg-gray-50 text-center">
                 <Button
                   variant="outline"
                   onClick={() => setShowAll(!showAll)}
+                  size="sm"
                 >
                   {showAll ? 'Show Less' : `Show All (${filteredExercises.length} exercises)`}
                 </Button>
