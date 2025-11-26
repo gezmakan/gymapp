@@ -154,29 +154,31 @@ export function usePlansStore() {
     if (!authListenerInitialized) {
       authListenerInitialized = true
 
-      supabase.auth.onAuthStateChange(async (_event, session) => {
-        const newUserId = session?.user?.id ?? null
-
-        // If user changed (login, logout, or different user)
-        if (newUserId !== currentUserId) {
-          currentUserId = newUserId
-
-          if (newUserId) {
-            // User logged in - clear old data and fetch new data
-            clearStore()
-            fetchInitialized = false // Reset fetch flag for new user
-            await fetchPlans(supabase)
-          } else {
-            // User logged out - clear all data
-            clearStore()
-            fetchInitialized = false
-          }
-        }
-      })
-
-      // Get initial user
+      // Get initial user FIRST before setting up listener
       supabase.auth.getUser().then(({ data: { user } }) => {
         currentUserId = user?.id ?? null
+
+        // Now set up the listener
+        supabase.auth.onAuthStateChange(async (_event, session) => {
+          const newUserId = session?.user?.id ?? null
+
+          // If user changed (login, logout, or different user)
+          if (newUserId !== currentUserId) {
+            const previousUserId = currentUserId
+            currentUserId = newUserId
+
+            if (newUserId && previousUserId !== newUserId) {
+              // User logged in or switched - clear old data and fetch new data
+              clearStore()
+              fetchInitialized = false // Reset fetch flag for new user
+              await fetchPlans(supabase)
+            } else if (!newUserId && previousUserId) {
+              // User logged out - clear all data
+              clearStore()
+              fetchInitialized = false
+            }
+          }
+        })
       })
     }
 

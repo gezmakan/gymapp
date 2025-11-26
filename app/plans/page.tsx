@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Plus, ArrowLeft, Trash2, Dumbbell, GripVertical, Search, EyeOff } from 'lucide-react'
+import { Plus, ArrowLeft, Trash2, Dumbbell, GripVertical, Search, EyeOff, Video } from 'lucide-react'
 import {
   Card,
   CardContent,
@@ -85,34 +85,44 @@ function SortableExerciseRow({
   }
 
   return (
-    <TableRow ref={setNodeRef} style={style} className={`select-none ${isHidden ? 'bg-gray-50 text-gray-500' : ''}`}>
-      <TableCell className="w-[40px] p-2">
+    <TableRow ref={setNodeRef} style={style} className={`select-none hover:bg-gray-50 ${isHidden ? 'bg-gray-50 text-gray-500' : ''}`}>
+      <TableCell className="w-[40px] py-2.5 px-2">
         {!isHidden && isEditing && (
           <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing touch-none">
             <GripVertical className="h-4 w-4 text-gray-400" />
           </div>
         )}
       </TableCell>
-      <TableCell className="font-medium p-2">
-        {exercise.video_url ? (
-          <button
-            onClick={onVideoClick}
-            className="text-blue-600 hover:text-blue-800 hover:underline text-left truncate block w-full"
-            title={exercise.name}
-          >
-            {exercise.name}
-          </button>
-        ) : (
-          <span className="truncate block" title={exercise.name}>
-            {exercise.name}
-          </span>
-        )}
+      <TableCell className="font-medium py-2.5 px-2">
+        <div className="flex items-center gap-2">
+          {exercise.video_url && (
+            <div className="hidden md:flex flex-shrink-0 w-6 h-6 rounded-full bg-orange-100 items-center justify-center">
+              <Video className="h-3 w-3 text-orange-600" />
+            </div>
+          )}
+          {exercise.video_url ? (
+            <button
+              onClick={onVideoClick}
+              className="text-gray-900 hover:text-orange-600 text-left transition-colors"
+            >
+              {exercise.name}
+            </button>
+          ) : (
+            <span>
+              {exercise.name}
+            </span>
+          )}
+        </div>
       </TableCell>
-      <TableCell className="p-2 text-sm">{exercise.sets}x{exercise.reps}</TableCell>
-      <TableCell className="text-right p-2">
+      <TableCell className="py-2.5 px-2 text-sm text-gray-600">
+        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100">
+          {exercise.sets} × {exercise.reps}
+        </span>
+      </TableCell>
+      <TableCell className="text-right py-2.5 px-2">
         {isHidden ? (
           <div className="flex justify-end gap-2">
-            <Button variant="outline" size="sm" onClick={onHide}>
+            <Button variant="outline" size="sm" onClick={onHide} className="hover:bg-orange-50">
               Unhide
             </Button>
             <Button variant="destructive" size="sm" onClick={onDelete}>
@@ -126,10 +136,10 @@ function SortableExerciseRow({
               variant="ghost"
               size="sm"
               onClick={onHide}
-              className="h-7 w-7 p-0"
+              className="h-7 w-7 p-0 hover:bg-orange-50 hover:text-orange-600"
               title="Hide exercise"
             >
-              <EyeOff className="h-3 w-3 text-gray-500" />
+              <EyeOff className="h-3 w-3" />
             </Button>
           )
         )}
@@ -474,16 +484,22 @@ const sensors = useSensors(
             </Button>
           </div>
         ) : (
-          <div className="space-y-4 px-4 md:px-0">
+          <div className="space-y-6 px-4 md:px-0">
             {plans.map((plan, index) => {
-              const colors = ['bg-blue-100', 'bg-green-100', 'bg-purple-100', 'bg-pink-100', 'bg-yellow-100']
-              const bgColor = colors[index % colors.length]
+              const colors = [
+                { from: 'from-blue-50', to: 'to-blue-100/50', border: 'border-blue-50' },
+                { from: 'from-green-50', to: 'to-green-100/50', border: 'border-green-50' },
+                { from: 'from-purple-50', to: 'to-purple-100/50', border: 'border-purple-50' },
+                { from: 'from-pink-50', to: 'to-pink-100/50', border: 'border-pink-50' },
+                { from: 'from-orange-50', to: 'to-orange-100/50', border: 'border-orange-50' },
+              ]
+              const colorScheme = colors[index % colors.length]
               const isPlanEditing = editingPlanMode === plan.id || plan.exercises.length === 0
 
               return (
-              <Card key={plan.id} className="border-0 md:border shadow-sm !py-0 !pb-4 !rounded-none md:!rounded-lg">
-                <CardHeader className={`p-4 ${bgColor}`}>
-                  <div className="flex items-center justify-between gap-2 -my-2">
+              <Card key={plan.id} className="border-0 md:border shadow-md hover:shadow-lg transition-shadow !py-0 !pb-3 !rounded-none md:!rounded-lg overflow-hidden">
+                <CardHeader className={`!px-4 !pt-3.5 !pb-1.5 bg-gradient-to-r ${colorScheme.from} ${colorScheme.to} border-b ${colorScheme.border}`}>
+                  <div className="flex items-center justify-between gap-2">
                     {editingPlanId === plan.id ? (
                       <div className="flex items-center gap-2 flex-1">
                         <Input
@@ -503,19 +519,25 @@ const sensors = useSensors(
                         />
                       </div>
                     ) : (
-                      <CardTitle
-                        className="text-xl cursor-pointer hover:text-blue-600 transition-colors"
-                        onClick={() => handleStartEditingPlanName(plan.id, plan.name)}
-                        title="Click to edit"
-                      >
-                        {plan.name}
-                      </CardTitle>
+                      <div className="flex items-center gap-3 flex-1">
+                        <CardTitle
+                          className="text-xl cursor-pointer hover:opacity-70 transition-opacity"
+                          onClick={() => handleStartEditingPlanName(plan.id, plan.name)}
+                          title="Click to edit"
+                        >
+                          {plan.name}
+                        </CardTitle>
+                        <span className="text-sm text-gray-600 font-normal">
+                          {plan.exercises.length} exercise{plan.exercises.length !== 1 ? 's' : ''}
+                        </span>
+                      </div>
                     )}
                     <div className="flex items-center gap-2">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => setEditingPlanMode(prev => (prev === plan.id ? null : plan.id))}
+                        className="hover:bg-white/80"
                       >
                         {isPlanEditing ? 'Done' : 'Edit'}
                       </Button>
@@ -524,7 +546,7 @@ const sensors = useSensors(
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDeletePlan(plan.id)}
-                          className="text-red-600 hover:text-red-700"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -536,17 +558,7 @@ const sensors = useSensors(
                   {plan.exercises.length === 0 ? (
                     <div className="py-6 border-2 border-dashed rounded-lg">
                       <p className="text-center text-gray-500 text-sm mb-3">No exercises yet</p>
-                      <div className="flex flex-wrap items-center justify-end gap-2">
-                        {isPlanEditing && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setSelectedPlanForAdd(plan.id)}
-                            className="mr-auto"
-                          >
-                            <Plus className="h-4 w-4 mr-2" /> Add Exercise
-                          </Button>
-                        )}
+                      <div className="flex flex-wrap items-center justify-center gap-2">
                         <Button
                           variant="outline"
                           size="sm"
@@ -554,6 +566,15 @@ const sensors = useSensors(
                         >
                           Open Tracker
                         </Button>
+                        {isPlanEditing && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSelectedPlanForAdd(plan.id)}
+                          >
+                            <Plus className="h-4 w-4 mr-2" /> Add Exercise
+                          </Button>
+                        )}
                       </div>
                     </div>
                   ) : (
@@ -610,17 +631,7 @@ const sensors = useSensors(
                         </Table>
                       </div>
                     )}
-                      <div className="mt-3 flex flex-wrap items-center justify-end gap-2">
-                        {isPlanEditing && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setSelectedPlanForAdd(plan.id)}
-                            className="mr-auto"
-                          >
-                            <Plus className="h-4 w-4 mr-2" /> Add Exercise
-                          </Button>
-                        )}
+                      <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
                         <Button
                           variant="outline"
                           size="sm"
@@ -628,6 +639,15 @@ const sensors = useSensors(
                         >
                           Open Tracker
                         </Button>
+                        {isPlanEditing && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSelectedPlanForAdd(plan.id)}
+                          >
+                            <Plus className="h-4 w-4 mr-2" /> Add Exercise
+                          </Button>
+                        )}
                       </div>
                     </div>
                   )}
