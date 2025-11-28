@@ -75,7 +75,6 @@ export default function AdminPage() {
       }
 
       const data = await response.json()
-      console.log('Users data:', data)
       setUsers((data?.users as User[]) || [])
     } catch (error) {
       console.error('Error fetching users:', error)
@@ -90,9 +89,6 @@ export default function AdminPage() {
         .order('created_at', { ascending: false })
 
       if (error) throw error
-
-      console.log('Total exercises fetched:', data?.length)
-      console.log('Unique user IDs:', [...new Set(data?.map(e => e.user_id).filter(Boolean))])
 
       // Get current user info
       const { data: { user: currentUser } } = await supabase.auth.getUser()

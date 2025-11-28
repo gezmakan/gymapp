@@ -4,6 +4,7 @@ import { ReactNode, useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePlansStore } from '@/hooks/usePlansStore'
 
 type NavbarProps = {
@@ -33,14 +34,26 @@ export default function Navbar({ rightContent }: NavbarProps) {
 
   return (
     <nav className="bg-white border-b sticky top-0 z-50">
-      <div className="max-w-full mx-auto px-4 md:px-8">
+      <div className="max-w-full mx-auto px-6 md:px-12">
         <div className="flex items-center justify-between gap-3 h-14">
           <Link
             href="/plans"
             className="flex items-center gap-1 md:gap-2 font-semibold text-gray-800 text-sm md:text-lg shrink-0"
           >
-            <span role="img" aria-label="weight lifter" className="text-base md:text-xl">🏋️</span>
-            <span>SLMFIT</span>
+            <Image
+              src="/gymloggerx.png"
+              alt="Gym Logger X logo"
+              width={36}
+              height={36}
+              className="h-8 w-8 md:h-10 md:w-10 rounded-full object-cover"
+              priority
+            />
+            <span
+              className="text-base md:text-lg tracking-wide"
+              style={{ fontFamily: 'Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif', letterSpacing: '0.12em' }}
+            >
+              GYM LOGGER X
+            </span>
           </Link>
 
           <div className="flex items-center gap-2 overflow-x-auto flex-1 min-w-0 flex-nowrap justify-start md:justify-end">

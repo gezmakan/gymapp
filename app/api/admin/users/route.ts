@@ -11,10 +11,7 @@ export async function GET() {
   const supabase = await createServerClient()
   const { data: { user }, error } = await supabase.auth.getUser()
 
-  console.log('Admin API - User:', user?.email, 'IsAdmin:', isAdmin(user?.email))
-
   if (error || !user || !isAdmin(user.email)) {
-    console.log('Admin API - Unauthorized:', error, user?.email)
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
   }
 
@@ -22,8 +19,6 @@ export async function GET() {
     // Get ALL users from auth system using database function
     const { data: allUsers, error: usersError } = await supabase
       .rpc('get_all_users_admin')
-
-    console.log('Admin API - All users:', allUsers?.length, 'Error:', usersError)
 
     if (usersError) throw usersError
 
@@ -48,8 +43,6 @@ export async function GET() {
       created_at: u.created_at,
       exercise_count: exerciseCounts[u.user_id] || 0
     })) || []
-
-    console.log('Admin API - Payload:', payload)
 
     return NextResponse.json({ users: payload })
   } catch (routeError) {

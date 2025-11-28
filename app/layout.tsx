@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SLM Fitness - Workout Tracker",
-  description: "A straightforward workout builder and tracker to manage your fitness journey",
+  title: "Gym Logger X - Workout Tracker",
+  description: "Gym Logger X helps you build, organize, and log every workout session with ease.",
 };
 
 export default function RootLayout({

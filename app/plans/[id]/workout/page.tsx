@@ -422,7 +422,7 @@ export default function WorkoutPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50 text-2xl md:text-3xl font-semibold text-gray-700">
-        <span role="img" aria-label="weight-lifter" className="mr-3">🏋️‍♂️</span>
+        <span role="img" aria-label="flexed biceps" className="mr-3">💪</span>
         Working things out...
       </div>
     )
@@ -526,7 +526,6 @@ export default function WorkoutPage() {
                         <div
                           className={`font-semibold text-sm md:text-lg ${exercise.video_url ? 'cursor-pointer hover:text-orange-600 transition-colors' : ''}`}
                           onClick={() => {
-                            console.log('Clicked:', exercise.name, 'URL:', exercise.video_url)
                             if (exercise.video_url) {
                               setSelectedVideo({ url: exercise.video_url, title: exercise.name })
                             }

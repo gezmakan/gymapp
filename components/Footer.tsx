@@ -127,7 +127,7 @@ export default function Footer() {
             )}
           </div>
         </div>
-        <div className="text-center text-xs text-gray-400">© SLMFIT</div>
+        <div className="text-center text-xs text-gray-400">© Gym Logger X</div>
       </div>
     </footer>
   )
