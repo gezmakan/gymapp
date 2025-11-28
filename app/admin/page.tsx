@@ -67,37 +67,16 @@ export default function AdminPage() {
 
   const fetchUsers = async () => {
     try {
-      // Get all users with their exercise counts
-      const { data: usersData, error: usersError } = await supabase
-        .from('exercises')
-        .select('user_id')
-
-      if (usersError) throw usersError
-
-      // Count exercises per user
-      const userExerciseCounts: Record<string, number> = {}
-      usersData?.forEach((ex) => {
-        if (ex.user_id) {
-          userExerciseCounts[ex.user_id] = (userExerciseCounts[ex.user_id] || 0) + 1
-        }
-      })
-
-      // Get current user info
-      const { data: { user: currentUser } } = await supabase.auth.getUser()
-
-      // For now, we'll show the current user if they have exercises
-      const usersList: User[] = []
-
-      if (currentUser && userExerciseCounts[currentUser.id]) {
-        usersList.push({
-          id: currentUser.id,
-          email: currentUser.email || 'Unknown',
-          created_at: currentUser.created_at || new Date().toISOString(),
-          exercise_count: userExerciseCounts[currentUser.id]
-        })
+      const response = await fetch('/api/admin/users', { credentials: 'same-origin' })
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('API error response:', errorData)
+        throw new Error(`Failed to fetch users: ${JSON.stringify(errorData)}`)
       }
 
-      setUsers(usersList)
+      const data = await response.json()
+      console.log('Users data:', data)
+      setUsers((data?.users as User[]) || [])
     } catch (error) {
       console.error('Error fetching users:', error)
     }
@@ -111,6 +90,9 @@ export default function AdminPage() {
         .order('created_at', { ascending: false })
 
       if (error) throw error
+
+      console.log('Total exercises fetched:', data?.length)
+      console.log('Unique user IDs:', [...new Set(data?.map(e => e.user_id).filter(Boolean))])
 
       // Get current user info
       const { data: { user: currentUser } } = await supabase.auth.getUser()
