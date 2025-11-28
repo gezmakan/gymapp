@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Gym Logger X - Workout Tracker",
-  description: "Gym Logger X helps you build, organize, and log every workout session with ease.",
+  title: "Gym Tracker 4 - Workout Tracker",
+  description: "Gym Tracker 4 helps you build, organize, and log every workout session with ease.",
 };
 
 export default function RootLayout({
