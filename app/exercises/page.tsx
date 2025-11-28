@@ -47,6 +47,18 @@ export default function ExercisesPage() {
 
   const EXERCISES_PER_PAGE = 30
 
+  const AddExerciseButton = ({ size = 'default', className = '' }: { size?: 'sm' | 'default'; className?: string }) => (
+    <Button
+      onClick={() => router.push(user ? '/exercises/add' : '/signup')}
+      size={size}
+      className={`bg-orange-500 hover:bg-orange-600 text-white font-semibold flex items-center gap-2 ${className}`}
+    >
+      <Plus className="h-4 w-4" />
+      <span className="hidden sm:inline">Add Exercise</span>
+      <span className="sm:hidden">Add</span>
+    </Button>
+  )
+
   // Fuzzy match function - returns a score (higher is better, 0 means no match)
   const fuzzyMatch = (text: string, search: string): number => {
     text = text.toLowerCase()
@@ -171,36 +183,24 @@ export default function ExercisesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Navbar />
+      <Navbar
+        rightContent={
+          <div className="relative w-40 sm:w-52 lg:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+            <Input
+              placeholder="Search exercises..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 pr-3 h-9 bg-gray-50 border border-gray-200 focus-visible:ring-orange-500 focus-visible:border-orange-500"
+              aria-label="Search exercises"
+            />
+          </div>
+        }
+      />
       <div className="max-w-3xl mx-auto px-4 flex-1 w-full md:p-8 pt-4">
         <div className="mb-4 md:mb-8">
           <div className="flex items-center justify-between gap-3 mt-2 md:mt-4">
             <h1 className="text-2xl md:text-3xl font-bold">Exercise Library</h1>
-          </div>
-        </div>
-
-        <div className="mb-4">
-          <div className="flex items-center gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-              <Input
-                placeholder="Search exercises..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 w-full"
-              />
-            </div>
-            {user ? (
-              <Button onClick={() => router.push('/exercises/add')} size="sm" variant="outline" className="md:h-10 flex-shrink-0">
-                <Plus className="h-4 w-4 md:mr-2" /> <span className="hidden md:inline">Add Exercise</span>
-                <span className="md:hidden">Add</span>
-              </Button>
-            ) : (
-              <Button onClick={() => router.push('/signup')} size="sm" className="md:h-10 flex-shrink-0 bg-orange-500 hover:bg-orange-600 text-white">
-                <Plus className="h-4 w-4 md:mr-2" /> <span className="hidden md:inline">Add More</span>
-                <span className="md:hidden">Add</span>
-              </Button>
-            )}
           </div>
         </div>
 
@@ -217,9 +217,9 @@ export default function ExercisesPage() {
               <button
                 onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
                 className="flex items-center gap-2 text-sm font-semibold text-gray-700 hover:text-gray-900"
+                aria-label="Toggle sort order"
               >
                 <ArrowUpDown className="h-4 w-4" />
-                Sort {sortOrder === 'asc' ? 'A-Z' : 'Z-A'}
               </button>
               <span className="text-sm text-gray-600">
                 {filteredExercises.length} exercise{filteredExercises.length !== 1 ? 's' : ''}
@@ -281,6 +281,12 @@ export default function ExercisesPage() {
                 </Button>
               </div>
             )}
+          </div>
+        )}
+
+        {exercises.length > 0 && (
+          <div className="mt-6 flex justify-center">
+            <AddExerciseButton />
           </div>
         )}
       </div>

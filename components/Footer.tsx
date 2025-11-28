@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Button } from '@/components/ui/button'
 import { LogOut } from 'lucide-react'
 
 type WorkoutPlan = {
@@ -56,7 +55,7 @@ export default function Footer() {
   return (
     <footer className="bg-white border-t mt-auto">
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 space-y-2">
-        <div className="flex flex-col items-center gap-2 text-xs text-gray-500">
+        <div className="flex flex-col items-center gap-2 text-sm text-gray-500">
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/plans"
@@ -74,6 +73,14 @@ export default function Footer() {
             >
               Exercise Library
             </Link>
+            <Link
+              href={user ? '/exercises/add' : '/signup'}
+              className={`${
+                pathname === '/exercises/add' ? 'text-indigo-600' : 'hover:text-indigo-600'
+              }`}
+            >
+              Add Exercise
+            </Link>
             {user && plans.map((plan) => (
               <Link
                 key={plan.id}
@@ -85,7 +92,7 @@ export default function Footer() {
               </Link>
             ))}
           </div>
-          <div className="flex items-center justify-center gap-6 flex-wrap">
+          <div className="flex items-center justify-center gap-6 flex-wrap pt-3">
             <Link
               href="/terms"
               className={`${

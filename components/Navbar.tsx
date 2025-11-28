@@ -1,12 +1,16 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { usePlansStore } from '@/hooks/usePlansStore'
 
-export default function Navbar() {
+type NavbarProps = {
+  rightContent?: ReactNode
+}
+
+export default function Navbar({ rightContent }: NavbarProps) {
   const { plans } = usePlansStore()
   const [user, setUser] = useState<any>(null)
   const [userChecked, setUserChecked] = useState(false)
@@ -30,7 +34,7 @@ export default function Navbar() {
   return (
     <nav className="bg-white border-b sticky top-0 z-50">
       <div className="max-w-full mx-auto px-4 md:px-8">
-        <div className="flex items-center justify-between gap-3 h-14 flex-nowrap overflow-x-auto">
+        <div className="flex items-center justify-between gap-3 h-14">
           <Link
             href="/plans"
             className="flex items-center gap-1 md:gap-2 font-semibold text-gray-800 text-sm md:text-lg shrink-0"
@@ -96,6 +100,12 @@ export default function Navbar() {
               </>
             )}
           </div>
+
+          {rightContent && (
+            <div className="flex items-center gap-2 shrink-0">
+              {rightContent}
+            </div>
+          )}
         </div>
       </div>
     </nav>
