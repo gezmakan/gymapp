@@ -450,9 +450,9 @@ const sensors = useSensors(
 
       <div className="flex-1 md:p-8">
         <div className="max-w-2xl mx-auto md:px-6">
-          <div className="mb-3 md:mb-6 text-center pb-3">
+          <div className="pt-4 md:pt-0 mb-3 md:mb-6 text-center pb-3">
             <h1 className="text-3xl md:text-4xl font-black tracking-wide text-slate-900">WORKOUT PLANS</h1>
-            <p className="text-sm text-gray-500 mt-2">Design, edit, and track every routine</p>
+            <p className="text-sm text-gray-500 mt-1">Design, edit, and track every routine</p>
           </div>
 
           {!canAddMore && (
