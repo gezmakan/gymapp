@@ -507,8 +507,14 @@ const sensors = useSensors(
                       <div className="flex items-center gap-3 flex-1">
                         <CardTitle
                           className="text-xl cursor-pointer hover:opacity-70 transition-opacity"
-                          onClick={() => handleStartEditingPlanName(plan.id, plan.name)}
-                          title="Click to edit"
+                          onClick={() => {
+                            if (isPlanEditing) {
+                              handleStartEditingPlanName(plan.id, plan.name)
+                            } else {
+                              router.push(`/plans/${plan.id}/workout`)
+                            }
+                          }}
+                          title={isPlanEditing ? 'Click to rename' : 'Open workout'}
                         >
                           {plan.name}
                         </CardTitle>
@@ -543,15 +549,8 @@ const sensors = useSensors(
                   {plan.exercises.length === 0 ? (
                     <div className="py-6 border-2 border-dashed rounded-lg">
                       <p className="text-center text-gray-500 text-sm mb-3">No exercises yet</p>
-                      <div className="flex flex-wrap items-center justify-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => router.push(`/plans/${plan.id}/workout`)}
-                        >
-                          Open Tracker
-                        </Button>
-                        {isPlanEditing && (
+                      {isPlanEditing && (
+                        <div className="flex flex-wrap items-center justify-center gap-2">
                           <Button
                             variant="outline"
                             size="sm"
@@ -559,8 +558,8 @@ const sensors = useSensors(
                           >
                             <Plus className="h-4 w-4 mr-2" /> Add Exercise
                           </Button>
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="-mt-4">
@@ -618,15 +617,8 @@ const sensors = useSensors(
                         </Table>
                       </div>
                     )}
-                      <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => router.push(`/plans/${plan.id}/workout`)}
-                        >
-                          Open Tracker
-                        </Button>
-                        {isPlanEditing && (
+                      {isPlanEditing && (
+                        <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
                           <Button
                             variant="outline"
                             size="sm"
@@ -634,8 +626,8 @@ const sensors = useSensors(
                           >
                             <Plus className="h-4 w-4 mr-2" /> Add Exercise
                           </Button>
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </CardContent>
