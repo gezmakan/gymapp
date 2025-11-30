@@ -399,6 +399,10 @@ export default function WorkoutPage() {
     }
   }
 
+  const handleSessionFocus = (sessionId: string) => {
+    setCurrentSessionId(sessionId)
+  }
+
   const updateSessionDate = async (sessionId: string, newDate: string) => {
     try {
       const { error } = await supabase
@@ -551,12 +555,16 @@ export default function WorkoutPage() {
 
                     return (
                       <tr key={session.id} className="bg-white">
-                        <td className="px-2 py-1 min-w-[80px] w-[80px] sticky left-0 z-10 bg-white shadow-[4px_0_8px_-4px_rgba(0,0,0,0.06)]">
+                        <td
+                          className="px-2 py-1 min-w-[80px] w-[80px] sticky left-0 z-10 bg-white shadow-[4px_0_8px_-4px_rgba(0,0,0,0.06)] cursor-pointer"
+                          onClick={() => handleSessionFocus(session.id)}
+                        >
                           <div className="font-bold text-center">{session.session_number}</div>
                           {editingDateSessionId === session.id ? (
                             <Input
                               type="date"
                               defaultValue={new Date(session.session_date).toISOString().split('T')[0]}
+                              onFocus={() => handleSessionFocus(session.id)}
                               onBlur={(e) => {
                                 if (e.target.value) {
                                   updateSessionDate(session.id, e.target.value)
@@ -578,7 +586,10 @@ export default function WorkoutPage() {
                           ) : (
                             <div
                               className="text-xs text-gray-500 text-center mt-1 cursor-pointer hover:text-gray-700"
-                              onClick={() => setEditingDateSessionId(session.id)}
+                              onClick={() => {
+                                handleSessionFocus(session.id)
+                                setEditingDateSessionId(session.id)
+                              }}
                             >
                               {(() => {
                                 const date = new Date(session.session_date)
@@ -592,7 +603,10 @@ export default function WorkoutPage() {
                         </td>
                         {exercises.map((exercise, exerciseIdx) => (
                           <td key={exercise.id} className={`px-2 py-1 ${exerciseIdx > 0 ? 'border-l-8 border-white' : ''}`}>
-                            <div className="grid grid-cols-4 gap-0">
+                            <div
+                              className="grid grid-cols-4 gap-0"
+                              onClick={() => handleSessionFocus(session.id)}
+                            >
                               {Array.from({ length: 4 }).map((_, setIdx) => {
                                 const setNumber = setIdx + 1
                                 const setData = sets.find(
@@ -600,35 +614,54 @@ export default function WorkoutPage() {
                                 )
 
                                 return (
-                                  <div key={setNumber} className="text-center border border-gray-200 rounded-none">
-                                    <input
-                                      type="number"
-                                      min="0"
-                                      value={setData?.reps ?? ''}
-                                      onChange={(e) => {
-                                        const val = e.target.value === '' ? null : parseInt(e.target.value)
-                                        if (val === null || val >= 0) {
-                                          updateSetValue(session.id, exercise.id, setNumber, 'reps', val)
-                                        }
-                                      }}
-                                      placeholder="R"
-                                      className="h-8 w-full text-center border-0 outline-none focus:outline-none placeholder-gray-300"
-                                    />
+                                  <div
+                                    key={setNumber}
+                                    className={`border border-gray-200 rounded-none ${isCurrentSession ? 'bg-white' : 'bg-gray-50'}`}
+                                  >
+                                    <div className="flex items-center h-8 px-1">
+                                      <span className={`text-[10px] font-semibold w-3 text-left ${isCurrentSession ? 'text-gray-400' : 'text-gray-300'}`}>
+                                        R
+                                      </span>
+                                      <input
+                                        type="number"
+                                        min="0"
+                                        value={setData?.reps ?? ''}
+                                        onChange={(e) => {
+                                          const val = e.target.value === '' ? null : parseInt(e.target.value)
+                                          if (val === null || val >= 0) {
+                                            updateSetValue(session.id, exercise.id, setNumber, 'reps', val)
+                                          }
+                                        }}
+                                        placeholder="Reps"
+                                        className={`h-8 w-full text-center border-0 outline-none focus:outline-none placeholder-transparent focus:placeholder-gray-400 ${
+                                          isCurrentSession ? 'text-gray-900 bg-white' : 'text-gray-400 bg-transparent'
+                                        }`}
+                                        onFocus={() => handleSessionFocus(session.id)}
+                                      />
+                                    </div>
                                     <div className="border-t border-gray-200"></div>
-                                    <input
-                                      type="number"
-                                      step="0.5"
-                                      min="0"
-                                      value={setData?.weight ?? ''}
-                                      onChange={(e) => {
-                                        const val = e.target.value === '' ? null : parseFloat(e.target.value)
-                                        if (val === null || val >= 0) {
-                                          updateSetValue(session.id, exercise.id, setNumber, 'weight', val)
-                                        }
-                                      }}
-                                      placeholder="W"
-                                      className="h-8 w-full text-center border-0 outline-none focus:outline-none placeholder-gray-300"
-                                    />
+                                    <div className="flex items-center h-8 px-1">
+                                      <span className={`text-[10px] font-semibold w-3 text-left ${isCurrentSession ? 'text-gray-400' : 'text-gray-300'}`}>
+                                        W
+                                      </span>
+                                      <input
+                                        type="number"
+                                        step="0.5"
+                                        min="0"
+                                        value={setData?.weight ?? ''}
+                                        onChange={(e) => {
+                                          const val = e.target.value === '' ? null : parseFloat(e.target.value)
+                                          if (val === null || val >= 0) {
+                                            updateSetValue(session.id, exercise.id, setNumber, 'weight', val)
+                                          }
+                                        }}
+                                        placeholder="Weight"
+                                        className={`h-8 w-full text-center border-0 outline-none focus:outline-none placeholder-transparent focus:placeholder-gray-400 ${
+                                          isCurrentSession ? 'text-gray-900 bg-white' : 'text-gray-400 bg-transparent'
+                                        }`}
+                                        onFocus={() => handleSessionFocus(session.id)}
+                                      />
+                                    </div>
                                   </div>
                                 )
                               })}

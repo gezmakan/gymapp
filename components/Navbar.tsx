@@ -42,7 +42,7 @@ export default function Navbar({ rightContent }: NavbarProps) {
           >
             <Image
               src="/gymloggerx.png"
-              alt="Gym Tracker 4 logo"
+              alt="GymTrack4 logo"
               width={36}
               height={36}
               className="h-8 w-8 md:h-10 md:w-10 rounded-full object-cover"
@@ -52,7 +52,7 @@ export default function Navbar({ rightContent }: NavbarProps) {
               className="text-base md:text-lg tracking-wide"
               style={{ fontFamily: 'Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif', letterSpacing: '0.12em' }}
             >
-              GYM TRACKER 4
+              GYMTRACK4
             </span>
           </Link>
 
