@@ -173,7 +173,7 @@ export default function ExercisesPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50 text-2xl md:text-3xl font-semibold text-gray-700">
+      <div className="flex items-center justify-center min-h-screen bg-linear-to-br from-rose-50 via-orange-50 to-yellow-50 text-2xl md:text-3xl font-semibold text-gray-700">
         <span role="img" aria-label="jump rope" className="mr-3">🤸‍♂️</span>
         Warming up exercises...
       </div>
@@ -181,25 +181,24 @@ export default function ExercisesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Navbar
-        rightContent={
-          <div className="relative w-40 sm:w-52 lg:w-64">
+    <div className="min-h-screen bg-linear-to-br from-rose-50 via-orange-50 to-yellow-50 flex flex-col">
+      <Navbar />
+      <div className="max-w-3xl mx-auto px-4 flex-1 w-full md:px-8 pt-4 pb-6">
+        <div className="mb-2 text-center">
+          <h1 className="text-3xl md:text-4xl font-black tracking-wide text-slate-900">EXERCISE LIBRARY</h1>
+        </div>
+
+        <div className="mb-3 flex justify-center">
+          <div className="relative w-[220px] sm:w-[280px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
             <Input
               placeholder="Search exercises..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 pr-3 h-9 bg-gray-50 border border-gray-200 focus-visible:ring-blue-500 focus-visible:border-blue-500"
+              className="pl-10 pr-3 h-10 bg-white border border-gray-200 focus-visible:ring-blue-500 focus-visible:border-blue-500"
               aria-label="Search exercises"
             />
           </div>
-        }
-      />
-      <div className="max-w-3xl mx-auto px-4 flex-1 w-full md:px-8 pt-4 pb-6">
-        <div className="mb-3 text-center pb-3">
-          <h1 className="text-3xl md:text-4xl font-black tracking-wide text-slate-900">EXERCISE LIBRARY</h1>
-          <p className="text-sm text-gray-500 mt-2">Discover, organize, and perfect every movement</p>
         </div>
 
         {exercises.length === 0 ? (

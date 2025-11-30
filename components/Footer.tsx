@@ -53,14 +53,14 @@ export default function Footer() {
   }
 
   return (
-    <footer className="bg-white border-t mt-auto">
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 space-y-2">
-        <div className="flex flex-col items-center gap-2 text-sm text-gray-500">
+    <footer className="bg-slate-900 text-white mt-auto">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 space-y-4">
+        <div className="flex flex-col items-center gap-2 text-sm text-slate-200">
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/plans"
               className={`${
-                pathname === '/plans' ? 'text-indigo-600' : 'hover:text-indigo-600'
+                pathname === '/plans' ? 'text-white' : 'hover:text-white/80'
               }`}
             >
               Workout Planner
@@ -68,7 +68,7 @@ export default function Footer() {
             <Link
               href="/exercises"
               className={`${
-                pathname === '/exercises' ? 'text-indigo-600' : 'hover:text-indigo-600'
+                pathname === '/exercises' ? 'text-white' : 'hover:text-white/80'
               }`}
             >
               Exercise Library
@@ -76,7 +76,7 @@ export default function Footer() {
             <Link
               href={user ? '/exercises/add' : '/signup'}
               className={`${
-                pathname === '/exercises/add' ? 'text-indigo-600' : 'hover:text-indigo-600'
+                pathname === '/exercises/add' ? 'text-white' : 'hover:text-white/80'
               }`}
             >
               Add Exercise
@@ -86,7 +86,7 @@ export default function Footer() {
             <Link
               href="/terms"
               className={`${
-                pathname === '/terms' ? 'text-indigo-600' : 'hover:text-indigo-600'
+                pathname === '/terms' ? 'text-white' : 'hover:text-white/80'
               }`}
             >
               Terms
@@ -94,7 +94,7 @@ export default function Footer() {
             <Link
               href="/privacy"
               className={`${
-                pathname === '/privacy' ? 'text-indigo-600' : 'hover:text-indigo-600'
+                pathname === '/privacy' ? 'text-white' : 'hover:text-white/80'
               }`}
             >
               Privacy
@@ -102,7 +102,7 @@ export default function Footer() {
             <Link
               href="/about"
               className={`${
-                pathname === '/about' ? 'text-indigo-600' : 'hover:text-indigo-600'
+                pathname === '/about' ? 'text-white' : 'hover:text-white/80'
               }`}
             >
               About
@@ -110,14 +110,16 @@ export default function Footer() {
             {user && (
               <button
                 onClick={handleLogout}
-                className="text-xs text-gray-500 hover:text-indigo-600"
+                className="text-xs text-slate-300 hover:text-white"
               >
                 Logout
               </button>
             )}
           </div>
         </div>
-        <div className="text-center text-xs text-gray-400">© Gym Tracker 4</div>
+        <div className="text-center text-sm md:text-base text-white font-semibold tracking-wide py-2">
+          © Gym Tracker 4
+        </div>
       </div>
     </footer>
   )

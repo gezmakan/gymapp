@@ -445,7 +445,7 @@ const sensors = useSensors(
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-linear-to-br from-rose-50 via-orange-50 to-yellow-50">
       <Navbar />
 
       <div className="flex-1 md:p-8">

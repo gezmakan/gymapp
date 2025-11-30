@@ -49,29 +49,15 @@ export default function Navbar({ rightContent }: NavbarProps) {
               priority
             />
             <span
-              className="text-base md:text-lg tracking-wide"
-              style={{ fontFamily: 'Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif', letterSpacing: '0.12em' }}
+              className="hidden md:inline text-base md:text-lg tracking-wide"
+              style={{ fontFamily: 'Impact, Haettenschweiler, \"Arial Narrow Bold\", sans-serif', letterSpacing: '0.12em' }}
             >
-              GYMTRACK4
+              GYMTRACKER4
             </span>
           </Link>
 
           <div className="flex items-center gap-2 overflow-x-auto flex-1 min-w-0 flex-nowrap justify-start md:justify-end">
-            {userChecked && user && !pathname.startsWith('/plans') && (
-              <Link
-                href="/plans"
-                className="text-sm font-medium whitespace-nowrap px-4 py-1.5 rounded-full transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200 md:mr-4"
-              >
-                <span className="hidden md:inline">Plan your workout</span>
-                <span className="md:hidden">Plan your workout</span>
-              </Link>
-            )}
-            {!pathname.startsWith('/exercises') && plans.map((plan, index) => {
-              // Hide the current plan if we're on its workout page
-              if (isOnWorkoutPage && plan.id === currentPlanId) {
-                return null
-              }
-
+            {plans.map((plan, index) => {
               const isActive = pathname.includes(`/plans/${plan.id}`)
               const colors = [
                 { bg: 'bg-blue-100', hover: 'hover:bg-blue-200', active: 'bg-blue-300' },
