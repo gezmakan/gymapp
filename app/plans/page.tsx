@@ -636,7 +636,7 @@ const sensors = useSensors(
             })}
           </div>
         )}
-        <div className="mt-6 flex flex-col md:flex-row items-center justify-center gap-3">
+        <div className="mt-6 pb-4 flex flex-col md:flex-row items-center justify-center gap-3">
           <p className="text-gray-600 text-sm md:text-base">
             {plans.length} of {MAX_PLANS} plans created
           </p>
@@ -649,7 +649,7 @@ const sensors = useSensors(
           >
             <Plus className="h-4 w-4 md:mr-2" />
             <span className="hidden md:inline">New Plan</span>
-            <span className="md:hidden">Plan</span>
+            <span className="md:hidden">Add New Plan</span>
           </Button>
         </div>
         </div>
