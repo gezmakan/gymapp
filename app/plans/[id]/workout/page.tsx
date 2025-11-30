@@ -512,10 +512,10 @@ export default function WorkoutPage() {
       <div className="flex-1">
         {/* Title row - full width and sticky */}
         <div
-          className={`relative flex items-center justify-center z-30 py-2 px-4 md:px-8 border-b border-white/60 shadow-sm overflow-hidden bg-gradient-to-r ${headerVariant.gradient} ${headerVariant.text} sticky top-14`}
+          className={`relative flex items-center justify-center z-30 py-2 px-4 md:px-8 border-b border-white/60 shadow-sm overflow-hidden bg-linear-to-r ${headerVariant.gradient} ${headerVariant.text} sticky top-14`}
         >
           <div
-            className={`absolute inset-0 bg-gradient-to-br ${headerVariant.accent} opacity-70 pointer-events-none`}
+            className={`absolute inset-0 bg-linear-to-br ${headerVariant.accent} opacity-70 pointer-events-none`}
             aria-hidden="true"
           />
           <div className="relative z-10 w-full max-w-full mx-auto text-center">
@@ -530,8 +530,9 @@ export default function WorkoutPage() {
               <table className="w-full border-collapse bg-transparent" style={{ minWidth: `${gridMinWidth}px` }}>
                 <thead>
                   <tr>
-                    <th className="px-2 py-1 min-w-[80px] w-[80px] sticky left-0 z-20 bg-white shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]">
+                    <th className="px-2 py-1 min-w-20 w-20 sticky left-0 z-20 bg-white shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                       <button
+                        type="button"
                         onClick={handleStartNewWorkout}
                         disabled={isCreatingSession}
                         className="text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline disabled:text-gray-400 disabled:no-underline transition-colors"
@@ -583,7 +584,7 @@ export default function WorkoutPage() {
                     return (
                       <tr key={session.id} className="bg-transparent">
                         <td
-                          className="px-2 py-1 min-w-[80px] w-[80px] sticky left-0 z-10 bg-white/70 backdrop-blur shadow-[4px_0_8px_-4px_rgba(0,0,0,0.06)] cursor-pointer"
+                          className="px-2 py-1 min-w-20 w-20 sticky left-0 z-10 bg-white/70 backdrop-blur shadow-[4px_0_8px_-4px_rgba(0,0,0,0.06)] cursor-pointer"
                           onClick={() => handleSessionFocus(session.id)}
                         >
                           <div className="font-bold text-center">{session.session_number}</div>

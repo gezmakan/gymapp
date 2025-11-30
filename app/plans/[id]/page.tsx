@@ -527,7 +527,7 @@ export default function PlanDetailPage() {
           setAddedExerciseIds(new Set())
         }
       }}>
-        <DialogContent className="sm:!max-w-[800px] w-[95vw] max-h-[80vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[800px]! w-[95vw] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add Exercise to Plan</DialogTitle>
           </DialogHeader>

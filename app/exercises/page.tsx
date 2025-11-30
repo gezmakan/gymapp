@@ -211,7 +211,7 @@ export default function ExercisesPage() {
           </div>
         ) : (
           <div className="bg-white md:rounded-lg border-y md:border -mx-4 md:mx-0 overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-50 to-blue-100/50 px-4 py-2.5 flex items-center justify-start sticky top-0 z-10">
+            <div className="bg-linear-to-r from-blue-50 to-blue-100/50 px-4 py-2.5 flex items-center justify-start sticky top-0 z-10">
               <button
                 onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
                 className="flex items-center gap-2 text-sm font-semibold text-gray-700 hover:text-gray-900"
@@ -229,7 +229,7 @@ export default function ExercisesPage() {
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     {exercise.video_url && (
-                      <div className="flex-shrink-0">
+                      <div className="shrink-0">
                         <div className="w-8 h-5 rounded-md bg-red-600 flex items-center justify-center shadow-sm" aria-label="Video available">
                           <svg viewBox="0 0 24 24" className="w-5 h-5 text-white" aria-hidden="true">
                             <path d="M9 7v10l8-5-8-5z" fill="currentColor" />
@@ -251,7 +251,7 @@ export default function ExercisesPage() {
                         )}
                       </h3>
                     </div>
-                    <span className="hidden md:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 flex-shrink-0">
+                    <span className="hidden md:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 shrink-0">
                       {exercise.muscle_groups || 'No muscle group'}
                     </span>
                   </div>
@@ -260,7 +260,7 @@ export default function ExercisesPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => setEditingExerciseId(exercise.id)}
-                      className="flex-shrink-0 hover:bg-blue-50 text-gray-600 hover:text-blue-700"
+                      className="shrink-0 hover:bg-blue-50 text-gray-600 hover:text-blue-700"
                     >
                       <Edit className="h-4 w-4" />
                     </Button>

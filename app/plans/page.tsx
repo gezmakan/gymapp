@@ -483,7 +483,7 @@ const sensors = useSensors(
 
               return (
               <Card key={plan.id} className="border border-transparent shadow-sm hover:shadow-md transition-shadow !py-0 !pb-3 !rounded-lg overflow-hidden">
-                <CardHeader className={`!px-4 !pt-3.5 !pb-1.5 bg-gradient-to-r ${colorScheme.from} ${colorScheme.to}`}>
+                <CardHeader className={`!px-4 !pt-3.5 !pb-1.5 bg-linear-to-r ${colorScheme.from} ${colorScheme.to}`}>
                   <div className="flex items-center justify-between gap-2">
                     {editingPlanId === plan.id ? (
                       <div className="flex items-center gap-2 flex-1">
