@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Plus, ArrowLeft, Trash2, Dumbbell, GripVertical, Search, EyeOff, Video } from 'lucide-react'
+import { Plus, ArrowLeft, Trash2, Dumbbell, GripVertical, Search, EyeOff } from 'lucide-react'
 import {
   Card,
   CardContent,
@@ -60,6 +60,7 @@ function SortableExerciseRow({
   onVideoClick,
   isEditing,
   isHidden,
+  order,
   onDelete
 }: {
   exercise: PlanExercise
@@ -67,6 +68,7 @@ function SortableExerciseRow({
   onVideoClick: () => void
   isEditing: boolean
   isHidden?: boolean
+  order?: number
   onDelete?: () => void
 }) {
   const {
@@ -85,25 +87,27 @@ function SortableExerciseRow({
   }
 
   return (
-    <TableRow ref={setNodeRef} style={style} className={`select-none hover:bg-gray-50 ${isHidden ? 'bg-gray-50 text-gray-500' : ''}`}>
-      <TableCell className="w-[40px] py-2.5 px-2">
-        {!isHidden && isEditing && (
-          <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing touch-none">
-            <GripVertical className="h-4 w-4 text-gray-400" />
-          </div>
-        )}
+    <TableRow
+      ref={setNodeRef}
+      style={style}
+      className={`select-none hover:bg-gray-50 border-b border-gray-200 ${isHidden ? 'bg-gray-50 text-gray-500' : ''}`}
+    >
+      <TableCell className="w-[60px] py-2.5 px-2">
+        <div className="flex items-center gap-2 text-gray-400 font-semibold text-sm">
+          <span>{order}</span>
+          {!isHidden && isEditing && (
+            <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing touch-none">
+              <GripVertical className="h-4 w-4" />
+            </div>
+          )}
+        </div>
       </TableCell>
       <TableCell className="font-medium py-2.5 px-2">
         <div className="flex items-center gap-2">
-          {exercise.video_url && (
-            <div className="hidden md:flex flex-shrink-0 w-6 h-6 rounded-full bg-orange-100 items-center justify-center">
-              <Video className="h-3 w-3 text-orange-600" />
-            </div>
-          )}
           {exercise.video_url ? (
             <button
               onClick={onVideoClick}
-              className="text-gray-900 hover:text-orange-600 text-left transition-colors"
+              className="text-gray-900 hover:text-blue-700 text-left transition-colors"
             >
               {exercise.name}
             </button>
@@ -445,38 +449,19 @@ const sensors = useSensors(
       <Navbar />
 
       <div className="flex-1 md:p-8">
-        <div className="max-w-4xl mx-auto md:px-16">
-          <div className="mb-4 md:mb-8 p-4 md:p-0">
-            <div className="flex justify-between items-center mb-4">
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold">Workout Plans</h1>
-                <p className="text-gray-600 text-sm md:text-base">
-                  {plans.length} of {MAX_PLANS} plans created
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  onClick={() => router.push('/plans/create')}
-                  disabled={!canAddMore}
-                  size="sm"
-                  variant="outline"
-                  className="md:h-10"
-                >
-                  <Plus className="h-4 w-4 md:mr-2" />
-                  <span className="hidden md:inline">New Plan</span>
-                </Button>
-              </div>
-            </div>
+        <div className="max-w-2xl mx-auto md:px-6">
+          <div className="mb-3 md:mb-6 text-center pb-3">
+            <h1 className="text-3xl md:text-4xl font-black tracking-wide text-slate-900">WORKOUT PLANS</h1>
+            <p className="text-sm text-gray-500 mt-2">Design, edit, and track every routine</p>
+          </div>
 
           {!canAddMore && (
             <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded text-sm">
               You've reached the maximum of {MAX_PLANS} workout plans.
             </div>
           )}
-        </div>
-
         {plans.length === 0 ? (
-          <div className="text-center py-12 bg-white md:rounded-lg border-y md:border mx-4 md:mx-0">
+          <div className="text-center py-12 bg-white md:rounded-lg mx-4 md:mx-0">
             <Dumbbell className="mx-auto h-12 w-12 text-gray-400 mb-4" />
             <p className="text-gray-600 mb-4">No workout plans yet. Create your first plan!</p>
             <Button onClick={() => router.push('/plans/create')} variant="outline">
@@ -487,18 +472,18 @@ const sensors = useSensors(
           <div className="space-y-6 px-4 md:px-0">
             {plans.map((plan, index) => {
               const colors = [
-                { from: 'from-blue-50', to: 'to-blue-100/50', border: 'border-blue-50' },
-                { from: 'from-green-50', to: 'to-green-100/50', border: 'border-green-50' },
-                { from: 'from-purple-50', to: 'to-purple-100/50', border: 'border-purple-50' },
-                { from: 'from-pink-50', to: 'to-pink-100/50', border: 'border-pink-50' },
-                { from: 'from-orange-50', to: 'to-orange-100/50', border: 'border-orange-50' },
+                { from: 'from-blue-50', to: 'to-blue-100/50', border: 'border-gray-100' },
+                { from: 'from-green-50', to: 'to-green-100/50', border: 'border-gray-100' },
+                { from: 'from-purple-50', to: 'to-purple-100/50', border: 'border-gray-100' },
+                { from: 'from-pink-50', to: 'to-pink-100/50', border: 'border-gray-100' },
+                { from: 'from-orange-50', to: 'to-orange-100/50', border: 'border-gray-100' },
               ]
               const colorScheme = colors[index % colors.length]
               const isPlanEditing = editingPlanMode === plan.id || plan.exercises.length === 0
 
               return (
-              <Card key={plan.id} className="border-0 md:border shadow-md hover:shadow-lg transition-shadow !py-0 !pb-3 !rounded-none md:!rounded-lg overflow-hidden">
-                <CardHeader className={`!px-4 !pt-3.5 !pb-1.5 bg-gradient-to-r ${colorScheme.from} ${colorScheme.to} border-b ${colorScheme.border}`}>
+              <Card key={plan.id} className="border border-transparent shadow-sm hover:shadow-md transition-shadow !py-0 !pb-3 !rounded-lg overflow-hidden">
+                <CardHeader className={`!px-4 !pt-3.5 !pb-1.5 bg-gradient-to-r ${colorScheme.from} ${colorScheme.to}`}>
                   <div className="flex items-center justify-between gap-2">
                     {editingPlanId === plan.id ? (
                       <div className="flex items-center gap-2 flex-1">
@@ -587,7 +572,7 @@ const sensors = useSensors(
                         <Table>
                           <TableHeader>
                             <TableRow>
-                              <TableHead className="w-[40px]"></TableHead>
+                            <TableHead className="w-[60px] text-gray-500">#</TableHead>
                               <TableHead>Exercise</TableHead>
                               <TableHead className="w-[100px]">Sets x Reps</TableHead>
                               <TableHead className="w-[50px]"></TableHead>
@@ -598,13 +583,14 @@ const sensors = useSensors(
                             items={plan.exercises.map(ex => ex.plan_exercise_id)}
                             strategy={verticalListSortingStrategy}
                           >
-                            {plan.exercises.map((exercise) => (
+                            {plan.exercises.map((exercise, index) => (
                             <SortableExerciseRow
                               key={exercise.plan_exercise_id}
                               exercise={exercise}
                               onHide={() => handleHideExercise(plan.id, exercise.plan_exercise_id)}
                               onVideoClick={() => setSelectedVideo({ url: exercise.video_url!, title: exercise.name })}
                               isEditing={isPlanEditing}
+                              order={index + 1}
                             />
                             ))}
                           </SortableContext>
@@ -616,7 +602,7 @@ const sensors = useSensors(
                         <p className="text-sm font-semibold text-gray-500 mb-2">Hidden Exercises</p>
                         <Table>
                           <TableBody>
-                            {plan.hiddenExercises.map((exercise) => (
+                            {plan.hiddenExercises.map((exercise, index) => (
                               <SortableExerciseRow
                                 key={exercise.plan_exercise_id}
                                 exercise={exercise}
@@ -624,6 +610,7 @@ const sensors = useSensors(
                                 onVideoClick={() => setSelectedVideo({ url: exercise.video_url!, title: exercise.name })}
                                 isEditing={false}
                                 isHidden
+                                order={index + 1}
                                 onDelete={() => handleRemoveExercise(plan.id, exercise.plan_exercise_id)}
                               />
                             ))}
@@ -657,12 +644,28 @@ const sensors = useSensors(
             })}
           </div>
         )}
+        <div className="mt-6 flex flex-col md:flex-row items-center justify-center gap-3">
+          <p className="text-gray-600 text-sm md:text-base">
+            {plans.length} of {MAX_PLANS} plans created
+          </p>
+          <Button
+            onClick={() => router.push('/plans/create')}
+            disabled={!canAddMore}
+            size="sm"
+            variant="outline"
+            className="md:h-10"
+          >
+            <Plus className="h-4 w-4 md:mr-2" />
+            <span className="hidden md:inline">New Plan</span>
+            <span className="md:hidden">Plan</span>
+          </Button>
+        </div>
         </div>
       </div>
 
       <Footer />
 
-  {/* Add Exercise Dialog */}
+      {/* Add Exercise Dialog */}
       <Dialog open={!!selectedPlanForAdd} onOpenChange={(open) => !open && setSelectedPlanForAdd(null)}>
         <DialogContent className="sm:!max-w-[800px] w-[95vw] max-h-[80vh] overflow-y-auto">
           <DialogHeader>

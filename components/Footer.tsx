@@ -81,16 +81,6 @@ export default function Footer() {
             >
               Add Exercise
             </Link>
-            {user && plans.map((plan) => (
-              <Link
-                key={plan.id}
-                href={`/plans/${plan.id}/workout`}
-                className="hover:text-indigo-600 max-w-[140px] truncate"
-                title={plan.name}
-              >
-                {plan.name}
-              </Link>
-            ))}
           </div>
           <div className="flex items-center justify-center gap-6 flex-wrap pt-3">
             <Link

@@ -41,26 +41,46 @@ const HEADER_VARIANTS = [
     gradient: 'from-blue-100 via-blue-50 to-white',
     text: 'text-blue-900',
     accent: 'from-blue-300/40 via-transparent to-transparent',
+    cards: [
+      'bg-gradient-to-br from-blue-100/80 via-blue-50/70 to-blue-200/60 border-blue-200/70',
+      'bg-gradient-to-br from-blue-300/50 via-blue-100/60 to-blue-200/50 border-blue-300/60',
+    ],
   },
   {
     gradient: 'from-green-100 via-green-50 to-white',
     text: 'text-green-900',
     accent: 'from-green-300/40 via-transparent to-transparent',
+    cards: [
+      'bg-gradient-to-br from-emerald-100/80 via-emerald-50/70 to-emerald-200/60 border-emerald-200/70',
+      'bg-gradient-to-br from-emerald-300/50 via-emerald-100/60 to-emerald-200/50 border-emerald-300/60',
+    ],
   },
   {
     gradient: 'from-purple-100 via-purple-50 to-white',
     text: 'text-purple-900',
     accent: 'from-purple-300/40 via-transparent to-transparent',
+    cards: [
+      'bg-gradient-to-br from-purple-100/80 via-indigo-50/70 to-purple-200/60 border-purple-200/70',
+      'bg-gradient-to-br from-purple-300/50 via-purple-100/60 to-purple-200/50 border-purple-300/60',
+    ],
   },
   {
     gradient: 'from-pink-100 via-pink-50 to-white',
     text: 'text-pink-900',
     accent: 'from-pink-300/40 via-transparent to-transparent',
+    cards: [
+      'bg-gradient-to-br from-rose-100/80 via-pink-50/70 to-rose-200/60 border-rose-200/70',
+      'bg-gradient-to-br from-rose-300/50 via-rose-100/60 to-rose-200/50 border-rose-300/60',
+    ],
   },
   {
     gradient: 'from-yellow-100 via-yellow-50 to-white',
     text: 'text-yellow-900',
     accent: 'from-yellow-300/40 via-transparent to-transparent',
+    cards: [
+      'bg-gradient-to-br from-amber-100/80 via-yellow-50/70 to-amber-200/60 border-amber-200/70',
+      'bg-gradient-to-br from-amber-300/50 via-amber-100/60 to-amber-200/50 border-amber-300/60',
+    ],
   },
 ]
 
@@ -492,22 +512,22 @@ export default function WorkoutPage() {
       <div className="flex-1">
         {/* Title row - full width and sticky */}
         <div
-          className={`relative flex items-center justify-between z-30 py-4 px-4 md:px-8 border-b border-white/60 shadow-sm overflow-hidden bg-gradient-to-r ${headerVariant.gradient} ${headerVariant.text} sticky top-14`}
+          className={`relative flex items-center justify-center z-30 py-2 px-4 md:px-8 border-b border-white/60 shadow-sm overflow-hidden bg-gradient-to-r ${headerVariant.gradient} ${headerVariant.text} sticky top-14`}
         >
           <div
             className={`absolute inset-0 bg-gradient-to-br ${headerVariant.accent} opacity-70 pointer-events-none`}
             aria-hidden="true"
           />
-          <div className="relative z-10 w-full max-w-full mx-auto">
+          <div className="relative z-10 w-full max-w-full mx-auto text-center">
             <h1 className="text-xl md:text-2xl font-bold drop-shadow-sm">{planName}</h1>
           </div>
         </div>
 
         {/* Content area */}
-        <div className="pt-4 md:p-8">
-          <div className="max-w-full mx-auto">
-            <div className="overflow-x-auto md:overflow-visible">
-              <table className="w-full border-collapse bg-white" style={{ minWidth: `${gridMinWidth}px` }}>
+        <div className="pt-4 md:px-8 pb-4">
+            <div className="max-w-full mx-auto">
+            <div className="overflow-x-auto md:overflow-visible bg-white/50 backdrop-blur">
+              <table className="w-full border-collapse bg-transparent" style={{ minWidth: `${gridMinWidth}px` }}>
                 <thead>
                   <tr>
                     <th className="px-2 py-1 min-w-[80px] w-[80px] sticky left-0 z-20 bg-white shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]">
@@ -520,32 +540,39 @@ export default function WorkoutPage() {
                         {isCreatingSession ? 'Adding...' : '+ Add'}
                       </button>
                     </th>
-                    {exercises.map((exercise, exerciseIdx) => (
-                      <th
-                        key={exercise.id}
-                        className={`px-2 py-1 min-w-[200px] max-w-[200px] border-l-8 border-white ${
-                          exerciseIdx % 2 === 0 ? 'bg-gray-100' : 'bg-gray-200'
-                        }`}
-                      >
-                        <div
-                          className={`font-semibold text-sm md:text-lg ${exercise.video_url ? 'cursor-pointer hover:text-orange-600 transition-colors' : ''}`}
-                          onClick={() => {
-                            if (exercise.video_url) {
-                              setSelectedVideo({ url: exercise.video_url, title: exercise.name })
-                            }
-                          }}
+                    {exercises.map((exercise, exerciseIdx) => {
+                      const cardVariant = headerVariant.cards[exerciseIdx % headerVariant.cards.length]
+
+                      return (
+                        <th
+                          key={exercise.id}
+                          className="px-2 py-1 bg-transparent align-top"
+                          style={{ width: `${exerciseColumnWidth}px` }}
                         >
-                          {exercise.name}
-                        </div>
-                        <div className="grid grid-cols-4 gap-0 mt-1">
-                          {Array.from({ length: 4 }).map((_, setIdx) => (
-                            <div key={setIdx} className="text-xs text-gray-500 text-center">
-                              {setIdx + 1}
+                          <div
+                            className={`w-full h-full border border-transparent backdrop-blur-2xl px-3 pt-1 pb-0 transition-all flex flex-col items-center justify-center gap-1.5 min-h-[105px] ${cardVariant}`}
+                          >
+                            <div
+                              className={`font-semibold text-sm md:text-lg leading-snug text-center ${exercise.video_url ? 'cursor-pointer hover:text-blue-700 transition-colors' : ''}`}
+                              onClick={() => {
+                                if (exercise.video_url) {
+                                  setSelectedVideo({ url: exercise.video_url, title: exercise.name })
+                                }
+                              }}
+                            >
+                              {exercise.name}
                             </div>
-                          ))}
-                        </div>
-                      </th>
-                    ))}
+                            <div className="grid grid-cols-4 gap-0 w-full">
+                              {Array.from({ length: 4 }).map((_, setIdx) => (
+                                <div key={setIdx} className="text-xs text-gray-600 text-center">
+                                  {setIdx + 1}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </th>
+                      )
+                    })}
                   </tr>
                 </thead>
                 <tbody>
@@ -554,9 +581,9 @@ export default function WorkoutPage() {
                     const isCurrentSession = session.id === currentSessionId
 
                     return (
-                      <tr key={session.id} className="bg-white">
+                      <tr key={session.id} className="bg-transparent">
                         <td
-                          className="px-2 py-1 min-w-[80px] w-[80px] sticky left-0 z-10 bg-white shadow-[4px_0_8px_-4px_rgba(0,0,0,0.06)] cursor-pointer"
+                          className="px-2 py-1 min-w-[80px] w-[80px] sticky left-0 z-10 bg-white/70 backdrop-blur shadow-[4px_0_8px_-4px_rgba(0,0,0,0.06)] cursor-pointer"
                           onClick={() => handleSessionFocus(session.id)}
                         >
                           <div className="font-bold text-center">{session.session_number}</div>
@@ -601,10 +628,14 @@ export default function WorkoutPage() {
                             </div>
                           )}
                         </td>
-                        {exercises.map((exercise, exerciseIdx) => (
-                          <td key={exercise.id} className={`px-2 py-1 ${exerciseIdx > 0 ? 'border-l-8 border-white' : ''}`}>
+                        {exercises.map((exercise) => (
+                          <td
+                            key={exercise.id}
+                            className="px-2 py-1 align-top"
+                            style={{ width: `${exerciseColumnWidth}px` }}
+                          >
                             <div
-                              className="grid grid-cols-4 gap-0"
+                              className="w-full grid grid-cols-4 gap-x-0 gap-y-3 border border-gray-200/70 bg-white"
                               onClick={() => handleSessionFocus(session.id)}
                             >
                               {Array.from({ length: 4 }).map((_, setIdx) => {
@@ -616,7 +647,7 @@ export default function WorkoutPage() {
                                 return (
                                   <div
                                     key={setNumber}
-                                    className={`border border-gray-200 rounded-none ${isCurrentSession ? 'bg-white' : 'bg-gray-50'}`}
+                                    className={`border border-gray-200/70 ${isCurrentSession ? 'bg-white' : 'bg-gray-50'}`}
                                   >
                                     <div className="flex items-center h-8 px-1">
                                       <span className={`text-[10px] font-semibold w-3 text-left ${isCurrentSession ? 'text-gray-400' : 'text-gray-300'}`}>

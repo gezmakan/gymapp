@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Plus, Edit, Trash2, LogOut, Video, Shield, Search, ArrowUpDown } from 'lucide-react'
+import { Plus, Edit, Trash2, LogOut, Shield, Search, ArrowUpDown } from 'lucide-react'
 import VideoModal from '@/components/VideoModal'
 import EditExerciseModal from '@/components/EditExerciseModal'
 import Footer from '@/components/Footer'
@@ -39,7 +39,6 @@ export default function ExercisesPage() {
   const [user, setUser] = useState<any>(null)
   const [selectedVideo, setSelectedVideo] = useState<{ url: string; title: string; exercise?: Exercise } | null>(null)
   const [editingExerciseId, setEditingExerciseId] = useState<string | null>(null)
-  const [showAll, setShowAll] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
   const router = useRouter()
@@ -51,7 +50,7 @@ export default function ExercisesPage() {
     <Button
       onClick={() => router.push(user ? '/exercises/add' : '/signup')}
       size={size}
-      className={`bg-orange-500 hover:bg-orange-600 text-white font-semibold flex items-center gap-2 ${className}`}
+      className={`bg-blue-600 hover:bg-blue-700 text-white font-semibold flex items-center gap-2 ${className}`}
     >
       <Plus className="h-4 w-4" />
       <span className="hidden sm:inline">Add Exercise</span>
@@ -120,7 +119,7 @@ export default function ExercisesPage() {
     })
     .map(({ exercise }) => exercise)
 
-  const displayedExercises = showAll ? filteredExercises : filteredExercises.slice(0, EXERCISES_PER_PAGE)
+  const displayedExercises = filteredExercises
 
   useEffect(() => {
     checkUser()
@@ -191,17 +190,16 @@ export default function ExercisesPage() {
               placeholder="Search exercises..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 pr-3 h-9 bg-gray-50 border border-gray-200 focus-visible:ring-orange-500 focus-visible:border-orange-500"
+              className="pl-9 pr-3 h-9 bg-gray-50 border border-gray-200 focus-visible:ring-blue-500 focus-visible:border-blue-500"
               aria-label="Search exercises"
             />
           </div>
         }
       />
-      <div className="max-w-3xl mx-auto px-4 flex-1 w-full md:p-8 pt-4">
-        <div className="mb-4 md:mb-8">
-          <div className="flex items-center justify-between gap-3 mt-2 md:mt-4">
-            <h1 className="text-2xl md:text-3xl font-bold">Exercise Library</h1>
-          </div>
+      <div className="max-w-3xl mx-auto px-4 flex-1 w-full md:px-8 pt-4 pb-6">
+        <div className="mb-3 text-center pb-3">
+          <h1 className="text-3xl md:text-4xl font-black tracking-wide text-slate-900">EXERCISE LIBRARY</h1>
+          <p className="text-sm text-gray-500 mt-2">Discover, organize, and perfect every movement</p>
         </div>
 
         {exercises.length === 0 ? (
@@ -213,7 +211,7 @@ export default function ExercisesPage() {
           </div>
         ) : (
           <div className="bg-white md:rounded-lg border-y md:border -mx-4 md:mx-0 overflow-hidden">
-            <div className="bg-gradient-to-r from-orange-50 to-orange-100/50 px-4 py-2.5 flex items-center justify-between sticky top-0 z-10">
+            <div className="bg-gradient-to-r from-blue-50 to-blue-100/50 px-4 py-2.5 flex items-center justify-start sticky top-0 z-10">
               <button
                 onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
                 className="flex items-center gap-2 text-sm font-semibold text-gray-700 hover:text-gray-900"
@@ -221,9 +219,6 @@ export default function ExercisesPage() {
               >
                 <ArrowUpDown className="h-4 w-4" />
               </button>
-              <span className="text-sm text-gray-600">
-                {filteredExercises.length} exercise{filteredExercises.length !== 1 ? 's' : ''}
-              </span>
             </div>
 
             {displayedExercises.map((exercise) => (
@@ -234,8 +229,12 @@ export default function ExercisesPage() {
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     {exercise.video_url && (
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">
-                        <Video className="h-4 w-4 text-orange-600" />
+                      <div className="flex-shrink-0">
+                        <div className="w-8 h-5 rounded-md bg-red-600 flex items-center justify-center shadow-sm" aria-label="Video available">
+                          <svg viewBox="0 0 24 24" className="w-5 h-5 text-white" aria-hidden="true">
+                            <path d="M9 7v10l8-5-8-5z" fill="currentColor" />
+                          </svg>
+                        </div>
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
@@ -243,7 +242,7 @@ export default function ExercisesPage() {
                         {exercise.video_url ? (
                           <button
                             onClick={() => setSelectedVideo({ url: exercise.video_url!, title: exercise.name, exercise })}
-                            className="text-gray-900 hover:text-orange-600 transition-colors"
+                            className="text-gray-900 hover:text-blue-700 transition-colors"
                           >
                             {exercise.name}
                           </button>
@@ -261,7 +260,7 @@ export default function ExercisesPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => setEditingExerciseId(exercise.id)}
-                      className="flex-shrink-0 hover:bg-orange-50 text-gray-600 hover:text-orange-600"
+                      className="flex-shrink-0 hover:bg-blue-50 text-gray-600 hover:text-blue-700"
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -270,17 +269,6 @@ export default function ExercisesPage() {
               </div>
             ))}
 
-            {filteredExercises.length > EXERCISES_PER_PAGE && (
-              <div className="p-3 border-t bg-gray-50 text-center">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowAll(!showAll)}
-                  size="sm"
-                >
-                  {showAll ? 'Show Less' : `Show All (${filteredExercises.length} exercises)`}
-                </Button>
-              </div>
-            )}
           </div>
         )}
 
