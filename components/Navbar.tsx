@@ -31,6 +31,9 @@ export default function Navbar({ rightContent }: NavbarProps) {
   // Check if we're on a workout page and extract the current plan ID
   const isOnWorkoutPage = pathname.includes('/workout')
   const currentPlanId = isOnWorkoutPage ? pathname.split('/')[2] : null
+  const visiblePlans = isOnWorkoutPage
+    ? plans.filter(plan => plan.id !== currentPlanId)
+    : plans
 
   return (
     <nav className="bg-white border-b sticky top-0 z-50">
@@ -57,7 +60,7 @@ export default function Navbar({ rightContent }: NavbarProps) {
           </Link>
 
           <div className="flex items-center gap-2 overflow-x-auto flex-1 min-w-0 flex-nowrap justify-start md:justify-end">
-            {plans.map((plan, index) => {
+            {visiblePlans.map((plan, index) => {
               const isActive = pathname.includes(`/plans/${plan.id}`)
               const colors = [
                 { bg: 'bg-blue-100', hover: 'hover:bg-blue-200', active: 'bg-blue-300' },

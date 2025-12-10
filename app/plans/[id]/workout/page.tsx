@@ -10,7 +10,7 @@ import Footer from '@/components/Footer'
 import VideoModal from '@/components/VideoModal'
 import { toast } from 'sonner'
 import { Toaster } from '@/components/ui/sonner'
-import { Video } from 'lucide-react'
+import { Pause, Play, RotateCcw } from 'lucide-react'
 
 type Exercise = {
   id: string
@@ -100,8 +100,12 @@ export default function WorkoutPage() {
   const [lastToastTime, setLastToastTime] = useState(0)
   const [editingDateSessionId, setEditingDateSessionId] = useState<string | null>(null)
   const [selectedVideo, setSelectedVideo] = useState<{ url: string; title: string } | null>(null)
+  const [isTimerRunning, setIsTimerRunning] = useState(false)
+  const [elapsedTimeMs, setElapsedTimeMs] = useState(0)
+  const [isResetting, setIsResetting] = useState(false)
   const hasAutoCreatedRef = useRef(false)
   const saveTimeoutsRef = useRef<Map<string, NodeJS.Timeout>>(new Map())
+  const resetAnimationTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const headerVariant = HEADER_VARIANTS[planIndex % HEADER_VARIANTS.length]
   const dateColumnWidth = 120
@@ -117,8 +121,23 @@ export default function WorkoutPage() {
     return () => {
       saveTimeoutsRef.current.forEach(timeout => clearTimeout(timeout))
       saveTimeoutsRef.current.clear()
+      if (resetAnimationTimeoutRef.current) {
+        clearTimeout(resetAnimationTimeoutRef.current)
+      }
     }
   }, [])
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null
+    if (isTimerRunning) {
+      interval = setInterval(() => {
+        setElapsedTimeMs(prev => prev + 100)
+      }, 100)
+    }
+    return () => {
+      if (interval) clearInterval(interval)
+    }
+  }, [isTimerRunning])
 
   const fetchWorkoutData = async () => {
     try {
@@ -443,6 +462,30 @@ export default function WorkoutPage() {
     }
   }
 
+  const toggleTimer = () => {
+    setIsTimerRunning(prev => !prev)
+  }
+
+  const resetTimer = () => {
+    setElapsedTimeMs(0)
+    setIsTimerRunning(false)
+    setIsResetting(true)
+    if (resetAnimationTimeoutRef.current) {
+      clearTimeout(resetAnimationTimeoutRef.current)
+    }
+    resetAnimationTimeoutRef.current = setTimeout(() => {
+      setIsResetting(false)
+    }, 600)
+  }
+
+  const formatElapsedTime = (totalMilliseconds: number) => {
+    const totalSeconds = Math.floor(totalMilliseconds / 1000)
+    const minutes = Math.floor(totalSeconds / 60)
+    const seconds = totalSeconds % 60
+    const tenths = Math.floor((totalMilliseconds % 1000) / 100)
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${tenths}`
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50 text-2xl md:text-3xl font-semibold text-gray-700">
@@ -512,14 +555,42 @@ export default function WorkoutPage() {
       <div className="flex-1">
         {/* Title row - full width and sticky */}
         <div
-          className={`relative flex items-center justify-center z-30 py-2 px-4 md:px-8 border-b border-white/60 shadow-sm overflow-hidden bg-linear-to-r ${headerVariant.gradient} ${headerVariant.text} sticky top-14`}
+          className={`relative flex items-center justify-between z-30 py-2 px-4 md:px-8 border-b border-white/60 shadow-sm overflow-hidden bg-linear-to-r ${headerVariant.gradient} ${headerVariant.text} sticky top-14`}
         >
           <div
             className={`absolute inset-0 bg-linear-to-br ${headerVariant.accent} opacity-70 pointer-events-none`}
             aria-hidden="true"
           />
-          <div className="relative z-10 w-full max-w-full mx-auto text-center">
+          <div className="relative z-10 text-left flex-1">
             <h1 className="text-xl md:text-2xl font-bold drop-shadow-sm">{planName}</h1>
+          </div>
+          <div className="relative z-10 flex items-center gap-2 text-xs md:text-sm font-medium text-gray-700 shrink-0">
+            <span className="px-3 py-1 rounded-full bg-white/70 text-gray-900 shadow-sm text-sm md:text-base font-semibold">
+              {formatElapsedTime(elapsedTimeMs)}
+            </span>
+            <button
+              type="button"
+              onClick={toggleTimer}
+              aria-label={isTimerRunning ? 'Pause timer' : 'Start timer'}
+              className="px-3 py-1 rounded-full bg-white/60 hover:bg-white/80 text-gray-900 shadow-sm transition"
+            >
+              {isTimerRunning ? (
+                <Pause className="w-4 h-4" />
+              ) : (
+                <Play className="w-4 h-4" />
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={resetTimer}
+              aria-label="Reset timer"
+              className="px-3 py-1 rounded-full bg-white/60 hover:bg-white/80 text-gray-900 shadow-sm transition"
+            >
+              <RotateCcw
+                className={`w-4 h-4 ${isResetting ? 'animate-spin' : ''}`}
+                style={isResetting ? { animationDirection: 'reverse' } : undefined}
+              />
+            </button>
           </div>
         </div>
 
