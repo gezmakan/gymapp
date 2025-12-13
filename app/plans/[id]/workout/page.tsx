@@ -106,6 +106,7 @@ export default function WorkoutPage() {
   const hasAutoCreatedRef = useRef(false)
   const saveTimeoutsRef = useRef<Map<string, NodeJS.Timeout>>(new Map())
   const resetAnimationTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const lastTickRef = useRef<number | null>(null)
 
   const headerVariant = HEADER_VARIANTS[planIndex % HEADER_VARIANTS.length]
   const dateColumnWidth = 120
@@ -130,9 +131,17 @@ export default function WorkoutPage() {
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null
     if (isTimerRunning) {
+      lastTickRef.current = Date.now()
       interval = setInterval(() => {
-        setElapsedTimeMs(prev => prev + 100)
+        const now = Date.now()
+        if (lastTickRef.current !== null) {
+          const diff = now - lastTickRef.current
+          setElapsedTimeMs(prev => prev + diff)
+        }
+        lastTickRef.current = now
       }, 100)
+    } else {
+      lastTickRef.current = null
     }
     return () => {
       if (interval) clearInterval(interval)
@@ -469,6 +478,7 @@ export default function WorkoutPage() {
   const resetTimer = () => {
     setElapsedTimeMs(0)
     setIsTimerRunning(false)
+    lastTickRef.current = null
     setIsResetting(true)
     if (resetAnimationTimeoutRef.current) {
       clearTimeout(resetAnimationTimeoutRef.current)
