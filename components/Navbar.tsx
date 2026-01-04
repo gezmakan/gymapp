@@ -45,12 +45,6 @@ export default function Navbar({ timerContent }: NavbarProps) {
               className="h-8 w-8 md:h-10 md:w-10 rounded-full object-cover"
               priority
             />
-            <span
-              className="hidden md:inline text-base md:text-lg tracking-wide"
-              style={{ fontFamily: 'Impact, Haettenschweiler, \"Arial Narrow Bold\", sans-serif', letterSpacing: '0.12em' }}
-            >
-              GYMTRACKER4
-            </span>
           </Link>
 
           {/* Timer - centered on desktop, hidden on mobile */}
