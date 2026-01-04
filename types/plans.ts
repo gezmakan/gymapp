@@ -22,4 +22,5 @@ export type WorkoutPlanSummary = {
   created_at: string
   exercises: PlanExercise[]
   hiddenExercises: PlanExercise[]
+  session_count?: number
 }

@@ -75,13 +75,18 @@ export default function Navbar({ rightContent }: NavbarProps) {
                 <Link
                   key={plan.id}
                   href={`/plans/${plan.id}/workout`}
-                  className={`text-sm font-medium whitespace-nowrap px-4 py-1.5 rounded-full transition-colors text-gray-900 shrink-0 ${
+                  className={`text-sm font-medium whitespace-nowrap px-4 py-1.5 rounded-full transition-colors text-gray-900 shrink-0 flex items-center gap-2 ${
                     isActive
                       ? colorSet.active
                       : `${colorSet.bg} ${colorSet.hover}`
                   }`}
                 >
-                  {plan.name}
+                  <span>{plan.name}</span>
+                  {(plan.session_count ?? 0) > 0 && (
+                    <span className="text-xs opacity-70 bg-white/40 px-2 py-0.5 rounded-full">
+                      {plan.session_count}
+                    </span>
+                  )}
                 </Link>
               )
             })}

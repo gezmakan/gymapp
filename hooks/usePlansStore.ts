@@ -34,7 +34,7 @@ const formatPlans = (data: any[] | null): WorkoutPlanSummary[] => {
   if (!data) return []
 
   return data.map((plan: any) => {
-    const { workout_plan_exercises = [], ...rest } = plan
+    const { workout_plan_exercises = [], workout_sessions = [], ...rest } = plan
     const rawExercises: PlanExercise[] = workout_plan_exercises.map((item: any) => ({
       ...item.exercises,
       plan_exercise_id: item.id,
@@ -46,6 +46,7 @@ const formatPlans = (data: any[] | null): WorkoutPlanSummary[] => {
       ...rest,
       exercises: rawExercises.filter((ex) => !ex.is_hidden),
       hiddenExercises: rawExercises.filter((ex) => ex.is_hidden),
+      session_count: workout_sessions.length,
     }
   })
 }
@@ -118,7 +119,8 @@ const fetchPlans = async (supabase: ReturnType<typeof createClient>) => {
             order_index,
             is_hidden,
             exercises (*)
-          )
+          ),
+          workout_sessions (id)
         `
         )
         .order('created_at', { ascending: false })
