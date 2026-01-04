@@ -622,18 +622,19 @@ export default function WorkoutPage() {
                         <th
                           key={exercise.id}
                           className="px-2 py-1 bg-transparent align-top"
-                          style={{ width: `${exerciseColumnWidth}px` }}
+                          style={{ width: `${exerciseColumnWidth}px`, maxWidth: `${exerciseColumnWidth}px`, minWidth: `${exerciseColumnWidth}px` }}
                         >
                           <div
-                            className={`w-full h-full border border-transparent backdrop-blur-2xl px-3 pt-1 pb-0 transition-all flex flex-col items-center justify-center gap-1.5 min-h-[105px] ${cardVariant}`}
+                            className={`w-full h-full border border-transparent backdrop-blur-2xl px-3 pt-1 pb-0 transition-all flex flex-col items-center justify-center gap-1.5 min-h-[105px] overflow-hidden ${cardVariant}`}
                           >
                             <div
-                              className={`font-semibold text-sm md:text-lg leading-snug text-center ${exercise.video_url ? 'cursor-pointer hover:text-blue-700 transition-colors' : ''}`}
+                              className={`font-semibold text-sm md:text-base leading-snug text-center px-1 overflow-hidden text-ellipsis whitespace-nowrap w-full min-w-0 ${exercise.video_url ? 'cursor-pointer hover:text-blue-700 transition-colors' : ''}`}
                               onClick={() => {
                                 if (exercise.video_url) {
                                   setSelectedVideo({ url: exercise.video_url, title: exercise.name })
                                 }
                               }}
+                              title={exercise.name}
                             >
                               {exercise.name}
                             </div>
