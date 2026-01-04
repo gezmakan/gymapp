@@ -28,13 +28,6 @@ export default function Navbar({ rightContent }: NavbarProps) {
     setUserChecked(true)
   }
 
-  // Check if we're on a workout page and extract the current plan ID
-  const isOnWorkoutPage = pathname.includes('/workout')
-  const currentPlanId = isOnWorkoutPage ? pathname.split('/')[2] : null
-  const visiblePlans = isOnWorkoutPage
-    ? plans.filter(plan => plan.id !== currentPlanId)
-    : plans
-
   return (
     <nav className="bg-white border-b sticky top-0 z-50">
       <div className="max-w-full mx-auto px-6 md:px-12">
@@ -60,16 +53,16 @@ export default function Navbar({ rightContent }: NavbarProps) {
           </Link>
 
           <div className="flex items-center gap-2 overflow-x-auto flex-1 min-w-0 flex-nowrap justify-start md:justify-end">
-            {visiblePlans.map((plan, index) => {
+            {plans.map((plan, index) => {
               const isActive = pathname.includes(`/plans/${plan.id}`)
               const colors = [
-                { bg: 'bg-blue-100', hover: 'hover:bg-blue-200', active: 'bg-blue-300' },
-                { bg: 'bg-green-100', hover: 'hover:bg-green-200', active: 'bg-green-300' },
-                { bg: 'bg-purple-100', hover: 'hover:bg-purple-200', active: 'bg-purple-300' },
-                { bg: 'bg-pink-100', hover: 'hover:bg-pink-200', active: 'bg-pink-300' },
-                { bg: 'bg-yellow-100', hover: 'hover:bg-yellow-200', active: 'bg-yellow-300' },
+                'bg-blue-300',
+                'bg-green-300',
+                'bg-purple-300',
+                'bg-pink-300',
+                'bg-yellow-300',
               ]
-              const colorSet = colors[index % colors.length]
+              const activeColor = colors[index % colors.length]
 
               return (
                 <Link
@@ -77,8 +70,8 @@ export default function Navbar({ rightContent }: NavbarProps) {
                   href={`/plans/${plan.id}/workout`}
                   className={`text-sm font-medium whitespace-nowrap px-4 py-1.5 rounded-full transition-colors text-gray-900 shrink-0 flex items-center gap-2 ${
                     isActive
-                      ? colorSet.active
-                      : `${colorSet.bg} ${colorSet.hover}`
+                      ? activeColor
+                      : 'bg-gray-100 hover:bg-gray-200'
                   }`}
                 >
                   <span>{plan.name}</span>

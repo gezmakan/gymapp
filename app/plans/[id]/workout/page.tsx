@@ -563,17 +563,10 @@ export default function WorkoutPage() {
       <Toaster />
       <Navbar />
       <div className="flex-1">
-        {/* Title row - full width and sticky */}
+        {/* Timer row - full width and sticky */}
         <div
-          className={`relative flex items-center justify-between z-30 py-2 px-4 md:px-8 border-b border-white/60 shadow-sm overflow-hidden bg-linear-to-r ${headerVariant.gradient} ${headerVariant.text} sticky top-14`}
+          className="flex items-center justify-center z-30 py-2 px-4 md:px-8 border-b border-gray-200 shadow-sm bg-white sticky top-14"
         >
-          <div
-            className={`absolute inset-0 bg-linear-to-br ${headerVariant.accent} opacity-70 pointer-events-none`}
-            aria-hidden="true"
-          />
-          <div className="relative z-10 text-left flex-1">
-            <h1 className="text-xl md:text-2xl font-bold drop-shadow-sm">{planName}</h1>
-          </div>
           <div className="relative z-10 flex items-center gap-2 text-xs md:text-sm font-medium text-gray-700 shrink-0">
             <span className="px-3 py-1 rounded-full bg-white/70 text-gray-900 shadow-sm text-sm md:text-base font-semibold">
               {formatElapsedTime(elapsedTimeMs)}
