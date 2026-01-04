@@ -8,10 +8,10 @@ import Image from 'next/image'
 import { usePlansStore } from '@/hooks/usePlansStore'
 
 type NavbarProps = {
-  rightContent?: ReactNode
+  timerContent?: ReactNode
 }
 
-export default function Navbar({ rightContent }: NavbarProps) {
+export default function Navbar({ timerContent }: NavbarProps) {
   const { plans } = usePlansStore()
   const [user, setUser] = useState<any>(null)
   const [userChecked, setUserChecked] = useState(false)
@@ -31,6 +31,7 @@ export default function Navbar({ rightContent }: NavbarProps) {
   return (
     <nav className="bg-white border-b sticky top-0 z-50">
       <div className="max-w-full mx-auto px-6 md:px-12">
+        {/* First row: Logo, Timer (desktop only), Plans */}
         <div className="flex items-center justify-between gap-3 h-14">
           <Link
             href="/plans"
@@ -51,6 +52,13 @@ export default function Navbar({ rightContent }: NavbarProps) {
               GYMTRACKER4
             </span>
           </Link>
+
+          {/* Timer - centered on desktop, hidden on mobile */}
+          {timerContent && (
+            <div className="hidden md:flex items-center gap-2 absolute left-1/2 transform -translate-x-1/2">
+              {timerContent}
+            </div>
+          )}
 
           <div className="flex items-center gap-2 overflow-x-auto flex-1 min-w-0 flex-nowrap justify-start md:justify-end">
             {plans.map((plan, index) => {
@@ -100,13 +108,14 @@ export default function Navbar({ rightContent }: NavbarProps) {
               </>
             )}
           </div>
-
-          {rightContent && (
-            <div className="flex items-center gap-2 shrink-0">
-              {rightContent}
-            </div>
-          )}
         </div>
+
+        {/* Second row: Timer on mobile only */}
+        {timerContent && (
+          <div className="md:hidden flex items-center justify-center py-2 border-t border-gray-200">
+            {timerContent}
+          </div>
+        )}
       </div>
     </nav>
   )

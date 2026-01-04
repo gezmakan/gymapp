@@ -558,45 +558,42 @@ export default function WorkoutPage() {
     }
   }
 
+  const timerContent = (
+    <>
+      <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-900 shadow-sm text-sm md:text-base font-semibold">
+        {formatElapsedTime(elapsedTimeMs)}
+      </span>
+      <button
+        type="button"
+        onClick={toggleTimer}
+        aria-label={isTimerRunning ? 'Pause timer' : 'Start timer'}
+        className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-900 shadow-sm transition"
+      >
+        {isTimerRunning ? (
+          <Pause className="w-4 h-4" />
+        ) : (
+          <Play className="w-4 h-4" />
+        )}
+      </button>
+      <button
+        type="button"
+        onClick={resetTimer}
+        aria-label="Reset timer"
+        className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-900 shadow-sm transition"
+      >
+        <RotateCcw
+          className={`w-4 h-4 ${isResetting ? 'animate-spin' : ''}`}
+          style={isResetting ? { animationDirection: 'reverse' } : undefined}
+        />
+      </button>
+    </>
+  )
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Toaster />
-      <Navbar />
+      <Navbar timerContent={timerContent} />
       <div className="flex-1">
-        {/* Timer row - full width and sticky */}
-        <div
-          className="flex items-center justify-center z-30 py-2 px-4 md:px-8 border-b border-gray-200 shadow-sm bg-white sticky top-14"
-        >
-          <div className="relative z-10 flex items-center gap-2 text-xs md:text-sm font-medium text-gray-700 shrink-0">
-            <span className="px-3 py-1 rounded-full bg-white/70 text-gray-900 shadow-sm text-sm md:text-base font-semibold">
-              {formatElapsedTime(elapsedTimeMs)}
-            </span>
-            <button
-              type="button"
-              onClick={toggleTimer}
-              aria-label={isTimerRunning ? 'Pause timer' : 'Start timer'}
-              className="px-3 py-1 rounded-full bg-white/60 hover:bg-white/80 text-gray-900 shadow-sm transition"
-            >
-              {isTimerRunning ? (
-                <Pause className="w-4 h-4" />
-              ) : (
-                <Play className="w-4 h-4" />
-              )}
-            </button>
-            <button
-              type="button"
-              onClick={resetTimer}
-              aria-label="Reset timer"
-              className="px-3 py-1 rounded-full bg-white/60 hover:bg-white/80 text-gray-900 shadow-sm transition"
-            >
-              <RotateCcw
-                className={`w-4 h-4 ${isResetting ? 'animate-spin' : ''}`}
-                style={isResetting ? { animationDirection: 'reverse' } : undefined}
-              />
-            </button>
-          </div>
-        </div>
-
         {/* Content area */}
         <div className="pt-4 md:px-8 pb-4">
             <div className="max-w-full mx-auto">
